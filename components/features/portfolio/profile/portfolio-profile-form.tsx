@@ -17,8 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Upload, FileText, ExternalLink } from "lucide-react"
+import { AvatarUpload } from "@/components/ui/avatar-upload"
+import { FileText, ExternalLink } from "lucide-react"
 
 const profileSchema = z.object({
   bio: z.string().max(1000, "Bio must be less than 1000 characters").optional().or(z.literal("")),
@@ -106,9 +106,12 @@ export function PortfolioProfileForm({
     setResumeUrl(resume || "")
   }, [resume])
 
-  const handleAvatarUrlChange = (url: string) => {
+  const handleAvatarUpload = async (url: string) => {
     setValue("avatar", url)
     setAvatarUrl(url)
+    if (onAvatarUpload) {
+      await onAvatarUpload(url)
+    }
   }
 
   const handleResumeUrlChange = (url: string) => {
@@ -133,33 +136,15 @@ export function PortfolioProfileForm({
   return (
     <form onSubmit={handleSubmit(internalSubmit)} className="space-y-6">
       {/* Avatar Section */}
-      <div className="space-y-4">
-        <Label>Avatar</Label>
-        <div className="flex items-start gap-4">
-          <Avatar className="w-20 h-20">
-            <AvatarImage src={avatarUrl} alt="Avatar" />
-            <AvatarFallback className="text-lg">
-              {initialValues?.userId?.charAt(0).toUpperCase() || "U"}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1 space-y-2">
-            <Input
-              {...register("avatar")}
-              placeholder="Avatar URL (e.g., https://example.com/avatar.jpg)"
-              onChange={(e) => {
-                register("avatar").onChange(e)
-                handleAvatarUrlChange(e.target.value)
-              }}
-            />
-            {errors.avatar && (
-              <p className="text-xs text-destructive">{String(errors.avatar.message)}</p>
-            )}
-            <p className="text-xs text-muted-foreground">
-              Enter a URL to your avatar image. File upload coming soon.
-            </p>
-          </div>
-        </div>
-      </div>
+      <AvatarUpload
+        value={avatarUrl}
+        onUpload={handleAvatarUpload}
+        fallback={initialValues?.userId?.charAt(0) || "U"}
+        size="md"
+        showUrlInput={true}
+        disabled={isSubmitting}
+        uploadEndpoint="/portfolio/profile/avatar"
+      />
 
       {/* Bio Section */}
       <div className="space-y-2">

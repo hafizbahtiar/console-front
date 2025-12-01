@@ -230,10 +230,10 @@ export async function apiClient<T = any>(
 
         // Make request
         // For FormData, don't include headers (browser sets Content-Type with boundary)
-        const fetchHeaders = isFormData 
+        const fetchHeaders = isFormData
             ? Object.fromEntries(
                 Object.entries(requestHeaders).filter(([key]) => key.toLowerCase() !== 'content-type')
-              )
+            )
             : requestHeaders;
 
         let response = await fetch(fullUrl, {
@@ -268,13 +268,13 @@ export async function apiClient<T = any>(
                 }, 30000);
                 const retryStartTime = Date.now();
                 try {
-                    const retryHeaders = isFormData 
+                    const retryHeaders = isFormData
                         ? Object.fromEntries(
                             Object.entries({ ...requestHeaders, 'Authorization': `Bearer ${newToken}` })
-                              .filter(([key]) => key.toLowerCase() !== 'content-type')
-                          )
+                                .filter(([key]) => key.toLowerCase() !== 'content-type')
+                        )
                         : { ...requestHeaders, 'Authorization': `Bearer ${newToken}` };
-                    
+
                     response = await fetch(fullUrl, {
                         ...fetchOptions,
                         headers: retryHeaders as HeadersInit,
@@ -314,17 +314,42 @@ export async function apiClient<T = any>(
 
         // Handle errors
         if (!response.ok) {
-            const errorMessage =
-                data?.message || data?.error || `Request failed with status ${response.status}`;
-            const errors = data?.errors || undefined;
+            // Handle standardized ErrorResponse format
+            // { success: false, statusCode: number, message: string, error?: string, errors?: object }
+            let errorMessage: string;
+            let rawErrors: Record<string, string[]> | string[] | undefined;
+
+            if (typeof data === 'object' && data !== null) {
+                // Standardized error response format
+                if ('success' in data && data.success === false) {
+                    errorMessage = data.message || data.error || `Request failed with status ${response.status}`;
+                    rawErrors = data.errors;
+                } else {
+                    // Legacy format or non-standard error
+                    errorMessage = data.message || data.error || `Request failed with status ${response.status}`;
+                    rawErrors = data.errors;
+                }
+            } else {
+                // Non-JSON error response
+                errorMessage = typeof data === 'string' ? data : `Request failed with status ${response.status}`;
+            }
+
+            // Normalize errors: convert string[] to Record<string, string[]>
+            let normalizedErrors: Record<string, string[]> | undefined;
+            if (Array.isArray(rawErrors)) {
+                // Convert string[] to Record format with _general key
+                normalizedErrors = { _general: rawErrors };
+            } else if (rawErrors && typeof rawErrors === 'object') {
+                normalizedErrors = rawErrors;
+            }
 
             logger.error('Request failed', {
                 status: response.status,
                 message: errorMessage,
-                errors,
+                errors: normalizedErrors,
             });
 
-            throw new ApiClientError(errorMessage, response.status, errors);
+            throw new ApiClientError(errorMessage, response.status, normalizedErrors);
         }
 
         logger.log('✅ Request successful', { dataSize: JSON.stringify(data).length });

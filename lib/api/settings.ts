@@ -1,4 +1,4 @@
-import { get, del, post, patch, getData, postData, patchData } from '@/lib/api-client'
+import { get, del, post, patch, getData, postData, patchData, apiClient } from '@/lib/api-client'
 
 export interface Session {
     id: string
@@ -74,6 +74,27 @@ export async function changePassword(data: ChangePasswordDto): Promise<void> {
  */
 export async function updateProfile(data: UpdateProfileDto): Promise<any> {
     return patchData<any>('/users/profile', data)
+}
+
+/**
+ * Upload user profile avatar - supports both file upload and URL
+ * @param avatar - Either a File object or a URL string
+ */
+export async function uploadAvatar(avatar: File | string): Promise<any> {
+    if (avatar instanceof File) {
+        // File upload
+        const formData = new FormData()
+        formData.append('file', avatar)
+
+        return apiClient<any>('/users/profile/avatar', {
+            method: 'POST',
+            body: formData,
+            extractData: true,
+        })
+    } else {
+        // URL string
+        return postData<any>('/users/profile/avatar', { avatar })
+    }
 }
 
 /**

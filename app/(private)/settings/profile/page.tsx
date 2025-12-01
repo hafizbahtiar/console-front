@@ -5,11 +5,13 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useAuth } from "@/contexts/auth-context"
 import { Button } from "@/components/ui/button"
+import { AvatarUpload } from "@/components/ui/avatar-upload"
 import { toast } from "sonner"
 import { z } from "zod"
-import { updateProfile } from "@/lib/api/settings"
+import { updateProfile, uploadAvatar } from "@/lib/api/settings"
 import { BasicInfoSection } from "@/components/features/settings/profile/basic-info-section"
 import { ProfileDetailsSection } from "@/components/features/settings/profile/profile-details-section"
+import { ApiClientError } from "@/lib/api-client"
 
 const profileSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
@@ -25,6 +27,7 @@ type ProfileFormData = z.infer<typeof profileSchema>
 export default function ProfileSettingsPage() {
   const { user, refreshUser } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
 
   const {
     register,
@@ -56,6 +59,24 @@ export default function ProfileSettingsPage() {
       })
     }
   }, [user, reset])
+
+  const handleAvatarUpload = async (avatarUrl: string) => {
+    setIsUploadingAvatar(true)
+    try {
+      await uploadAvatar(avatarUrl)
+      await refreshUser()
+      toast.success("Avatar updated successfully!")
+    } catch (error: any) {
+      const message =
+        error instanceof ApiClientError
+          ? error.message
+          : "Failed to upload avatar. Please try again."
+      toast.error(message)
+      throw error
+    } finally {
+      setIsUploadingAvatar(false)
+    }
+  }
 
   const onSubmit = async (data: ProfileFormData) => {
     setIsSubmitting(true)
@@ -95,6 +116,25 @@ export default function ProfileSettingsPage() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {/* Avatar Upload Section */}
+        <div className="space-y-4">
+          <div>
+            <h3 className="text-lg font-medium">Profile Picture</h3>
+            <p className="text-sm text-muted-foreground">
+              Upload a profile picture to personalize your account
+            </p>
+          </div>
+          <AvatarUpload
+            value={user?.avatar}
+            onUpload={handleAvatarUpload}
+            fallback={user?.firstName?.charAt(0) || user?.username?.charAt(0) || "U"}
+            size="md"
+            showUrlInput={true}
+            disabled={isUploadingAvatar || isSubmitting}
+            uploadEndpoint="/users/profile/avatar"
+          />
+        </div>
+
         <BasicInfoSection
           register={register}
           errors={errors}
