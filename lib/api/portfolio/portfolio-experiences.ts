@@ -1,5 +1,6 @@
 import { del, getPaginatedData, getData, postData, patchData } from '@/lib/api-client'
 import { PaginationMeta } from '@/lib/types/api-response'
+import { BulkDeleteResponse } from './types'
 
 export interface Experience {
     id: string
@@ -63,5 +64,9 @@ export async function updateExperience(id: string, data: UpdateExperienceDto): P
 
 export async function deleteExperience(id: string): Promise<void> {
     return del<void>(`/portfolio/experiences/${id}`)
+}
+
+export async function bulkDeleteExperiences(ids: string[]): Promise<BulkDeleteResponse> {
+    return postData<BulkDeleteResponse>('/portfolio/experiences/bulk-delete', { ids })
 }
 

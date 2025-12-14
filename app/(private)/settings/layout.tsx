@@ -1,7 +1,5 @@
 "use client"
 
-import { useAuth } from "@/contexts/auth-context"
-import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -93,38 +91,16 @@ export default function SettingsLayout({
 }: {
     children: React.ReactNode
 }) {
-    const { user, isLoading } = useAuth()
-    const router = useRouter()
     const pathname = usePathname()
     const [mobileNavOpen, setMobileNavOpen] = useState(false)
-
-    useEffect(() => {
-        if (!isLoading) {
-            // Check if user is owner
-            if (!user || user.role !== "owner") {
-                router.push("/dashboard")
-            }
-        }
-    }, [user, isLoading, router])
 
     // Close mobile nav when pathname changes
     useEffect(() => {
         setMobileNavOpen(false)
     }, [pathname])
 
-    // Show loading or nothing while checking
-    if (isLoading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="text-muted-foreground">Loading...</div>
-            </div>
-        )
-    }
-
-    // If not owner, don't render (redirect will happen)
-    if (!user || user.role !== "owner") {
-        return null
-    }
+    // Settings is available to all authenticated users
+    // Authentication check is handled by parent private layout
 
     return (
         <div className="flex flex-col md:flex-row h-full gap-4 md:gap-6">

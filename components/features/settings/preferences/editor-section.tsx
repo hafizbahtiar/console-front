@@ -36,7 +36,7 @@ export function EditorSection({ control, register, errors }: EditorSectionProps)
                         control={control}
                         render={({ field }) => (
                             <Select value={field.value} onValueChange={field.onChange}>
-                                <SelectTrigger id="editor-theme">
+                                <SelectTrigger id="editor-theme" className="w-full">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>

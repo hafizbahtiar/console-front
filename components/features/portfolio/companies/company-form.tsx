@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
+import { ImageUpload } from "@/components/ui/image-upload"
 
 const companySchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -34,6 +35,9 @@ interface CompanyFormProps {
 }
 
 export function CompanyForm({ initialValues, onSubmit, onCancel, isSubmitting }: CompanyFormProps) {
+  const [logoUrl, setLogoUrl] = useState<string | undefined>(initialValues?.logo)
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false)
+
   const {
     register,
     handleSubmit,
@@ -53,6 +57,7 @@ export function CompanyForm({ initialValues, onSubmit, onCancel, isSubmitting }:
 
   useEffect(() => {
     if (initialValues) {
+      setLogoUrl(initialValues.logo)
       reset({
         name: initialValues.name,
         website: initialValues.website ?? "",
@@ -64,11 +69,24 @@ export function CompanyForm({ initialValues, onSubmit, onCancel, isSubmitting }:
     }
   }, [initialValues, reset])
 
+  const handleLogoUpload = async (url: string | string[]) => {
+    setIsUploadingLogo(true)
+    try {
+      const logoUrlString = Array.isArray(url) ? url[0] : url
+      setLogoUrl(logoUrlString)
+    } catch (error) {
+      console.error("Failed to upload logo:", error)
+    } finally {
+      setIsUploadingLogo(false)
+    }
+  }
+
   const internalSubmit = async (values: CompanyFormValues) => {
     const payload: CreateCompanyDto | UpdateCompanyDto = {
       name: values.name,
       website: values.website || undefined,
       description: values.description || undefined,
+      logo: logoUrl || undefined,
       industry: values.industry || undefined,
       location: values.location || undefined,
       foundedYear: values.foundedYear ? Number(values.foundedYear) : undefined,
@@ -85,6 +103,23 @@ export function CompanyForm({ initialValues, onSubmit, onCancel, isSubmitting }:
         {errors.name && (
           <p className="text-xs text-destructive mt-1">{String(errors.name.message)}</p>
         )}
+      </div>
+
+      <div className="space-y-2">
+        <Label>Company Logo</Label>
+        <ImageUpload
+          value={logoUrl}
+          onUpload={handleLogoUpload}
+          label="Company Logo"
+          previewSize="md"
+          aspectRatio="1/1"
+          showUrlInput={true}
+          disabled={isSubmitting || isUploadingLogo}
+          className="w-full"
+        />
+        <p className="text-xs text-muted-foreground">
+          Upload a company logo (recommended: square image, 1:1 aspect ratio)
+        </p>
       </div>
 
       <div className="space-y-2">

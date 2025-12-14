@@ -8,7 +8,7 @@ import { PaginationMeta } from "@/lib/types/api-response"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
-import { CalendarDays, ExternalLink, Award } from "lucide-react"
+import { CalendarDays, ExternalLink, Award, Trash2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface CertificationTableProps {
@@ -23,6 +23,9 @@ interface CertificationTableProps {
   isLoading?: boolean
   onEdit?: (certification: Certification) => void
   onDelete?: (certification: Certification) => void
+  enableRowSelection?: boolean
+  onSelectionChange?: (selectedCertifications: Certification[]) => void
+  onBulkDelete?: (selectedCertifications: Certification[]) => void
 }
 
 function getExpiryStatus(expiryDate?: string): { status: "valid" | "expiring" | "expired"; label: string; variant: "default" | "secondary" | "destructive" } {
@@ -55,6 +58,9 @@ export function CertificationTable({
   isLoading,
   onEdit,
   onDelete,
+  enableRowSelection = false,
+  onSelectionChange,
+  onBulkDelete,
 }: CertificationTableProps) {
   const columns = React.useMemo<ColumnDef<Certification, any>[]>(
     () => [
@@ -186,6 +192,23 @@ export function CertificationTable({
       isLoading={isLoading}
       emptyTitle="No certifications yet"
       emptyDescription="Start by adding your professional certifications and credentials."
+      enableRowSelection={enableRowSelection}
+      getRowId={(row) => row.id}
+      onSelectionChange={onSelectionChange}
+      renderBulkActions={
+        onBulkDelete
+          ? (selected) => (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => onBulkDelete(selected)}
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete Selected ({selected.length})
+            </Button>
+          )
+          : undefined
+      }
     />
   )
 }

@@ -1,8 +1,10 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useAuth } from "@/contexts/auth-context"
+import { useTransactionCount } from "@/hooks/finance/use-transaction-count"
 import {
     ChevronUp,
     Home,
@@ -19,6 +21,7 @@ import {
     Link2,
     UserCircle,
     Shield,
+    DollarSign,
 } from "lucide-react"
 
 import {
@@ -73,6 +76,7 @@ const portfolioMenuItems: MenuItem[] = [
 export function AppSidebar() {
     const { user, logout } = useAuth()
     const pathname = usePathname()
+    const { transactionCount } = useTransactionCount()
 
     const currentUser = {
         name: user?.displayName || `${user?.firstName || ""} ${user?.lastName || ""}`.trim() || "User",
@@ -98,10 +102,16 @@ export function AppSidebar() {
         return pathname.startsWith(url + "/") || pathname === url
     }
 
-    // Add Settings and Admin to menu if user is owner
+    // Add Settings, Finance, and Admin to menu if user is owner
     const menuItems: MenuItem[] = user?.role === "owner"
         ? [
             ...mainMenuItems,
+            {
+                title: "Finance",
+                url: "/finance",
+                icon: DollarSign,
+                badge: transactionCount !== null && transactionCount > 0 ? transactionCount : undefined,
+            },
             { title: "Settings", url: "/settings", icon: Settings },
             { title: "Admin", url: "/admin/dashboard", icon: Shield },
         ]
@@ -142,27 +152,29 @@ export function AppSidebar() {
                     </SidebarGroupContent>
                 </SidebarGroup>
 
-                {/* Portfolio Navigation */}
-                <SidebarGroup>
-                    <SidebarGroupLabel>Portfolio</SidebarGroupLabel>
-                    <SidebarGroupContent>
-                        <SidebarMenu>
-                            {portfolioMenuItems.map((item) => (
-                                <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                                        <Link href={item.url}>
-                                            <item.icon />
-                                            <span>{item.title}</span>
-                                        </Link>
-                                    </SidebarMenuButton>
-                                    {item.badge && (
-                                        <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>
-                                    )}
-                                </SidebarMenuItem>
-                            ))}
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
+                {/* Portfolio Navigation - Owner Only */}
+                {user?.role === "owner" && (
+                    <SidebarGroup>
+                        <SidebarGroupLabel>Portfolio</SidebarGroupLabel>
+                        <SidebarGroupContent>
+                            <SidebarMenu>
+                                {portfolioMenuItems.map((item) => (
+                                    <SidebarMenuItem key={item.title}>
+                                        <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                                            <Link href={item.url}>
+                                                <item.icon />
+                                                <span>{item.title}</span>
+                                            </Link>
+                                        </SidebarMenuButton>
+                                        {item.badge && (
+                                            <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>
+                                        )}
+                                    </SidebarMenuItem>
+                                ))}
+                            </SidebarMenu>
+                        </SidebarGroupContent>
+                    </SidebarGroup>
+                )}
 
             </SidebarContent>
 

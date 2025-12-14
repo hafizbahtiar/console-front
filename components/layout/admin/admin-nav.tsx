@@ -8,10 +8,7 @@ import {
     Activity,
     Clock,
     Server,
-    Settings,
 } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
 import {
     Sidebar,
     SidebarContent,

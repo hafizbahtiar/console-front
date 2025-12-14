@@ -1,4 +1,5 @@
 import { get, patch, del, getData, postData, patchData } from '@/lib/api-client'
+import { BulkDeleteResponse } from './types'
 
 export interface Skill {
     id: string
@@ -52,5 +53,9 @@ export async function deleteSkill(id: string): Promise<void> {
 
 export async function reorderSkills(skillIds: string[]): Promise<void> {
     return patch<void>('/portfolio/skills/reorder', { skillIds })
+}
+
+export async function bulkDeleteSkills(ids: string[]): Promise<BulkDeleteResponse> {
+    return postData<BulkDeleteResponse>('/portfolio/skills/bulk-delete', { ids })
 }
 

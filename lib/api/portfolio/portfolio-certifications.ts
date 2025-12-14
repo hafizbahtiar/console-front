@@ -1,5 +1,6 @@
 import { del, getPaginatedData, getData, postData, patchData } from '@/lib/api-client'
 import { PaginationMeta } from '@/lib/types/api-response'
+import type { BulkDeleteResponse } from './types'
 
 export interface Certification {
     id: string
@@ -55,5 +56,9 @@ export async function updateCertification(id: string, data: UpdateCertificationD
 
 export async function deleteCertification(id: string): Promise<void> {
     return del<void>(`/portfolio/certifications/${id}`)
+}
+
+export async function bulkDeleteCertifications(ids: string[]): Promise<BulkDeleteResponse> {
+    return postData<BulkDeleteResponse>('/portfolio/certifications/bulk-delete', { ids })
 }
 

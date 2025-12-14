@@ -7,7 +7,7 @@ import { DataTable } from "@/components/ui/data-table"
 import { PaginationMeta } from "@/lib/types/api-response"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ExternalLink, Link2, CheckCircle2, XCircle } from "lucide-react"
+import { ExternalLink, Link2, CheckCircle2, XCircle, Trash2 } from "lucide-react"
 
 interface ContactTableProps {
   contacts: Contact[]
@@ -21,6 +21,9 @@ interface ContactTableProps {
   isLoading?: boolean
   onEdit?: (contact: Contact) => void
   onDelete?: (contact: Contact) => void
+  enableRowSelection?: boolean
+  onSelectionChange?: (selectedContacts: Contact[]) => void
+  onBulkDelete?: (selectedContacts: Contact[]) => void
 }
 
 export function ContactTable({
@@ -35,6 +38,9 @@ export function ContactTable({
   isLoading,
   onEdit,
   onDelete,
+  enableRowSelection = false,
+  onSelectionChange,
+  onBulkDelete,
 }: ContactTableProps) {
   const columns = React.useMemo<ColumnDef<Contact, any>[]>(
     () => [
@@ -155,6 +161,23 @@ export function ContactTable({
       isLoading={isLoading}
       emptyTitle="No contacts yet"
       emptyDescription="Start by adding your social media links and contact information."
+      enableRowSelection={enableRowSelection}
+      getRowId={(row) => row.id}
+      onSelectionChange={onSelectionChange}
+      renderBulkActions={
+        onBulkDelete
+          ? (selected) => (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => onBulkDelete(selected)}
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete Selected ({selected.length})
+            </Button>
+          )
+          : undefined
+      }
     />
   )
 }

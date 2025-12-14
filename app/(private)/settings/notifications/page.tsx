@@ -1,14 +1,38 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
+import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "sonner"
+import {
+    getNotificationPreferences,
+    updateNotificationPreferences,
+    resetNotificationPreferences,
+    type NotificationPreferences,
+} from "@/lib/api/settings"
+import { ApiClientError } from "@/lib/api-client"
+
+type NotificationPreferencesState = Pick<
+    NotificationPreferences,
+    | "emailAccountActivity"
+    | "emailSecurityAlerts"
+    | "emailMarketing"
+    | "emailWeeklyDigest"
+    | "inAppSystem"
+    | "inAppProjects"
+    | "inAppMentions"
+    | "pushEnabled"
+    | "pushBrowser"
+    | "pushMobile"
+>
 
 export default function NotificationSettingsPage() {
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const [preferences, setPreferences] = useState({
+    const [isLoading, setIsLoading] = useState(true)
+    const [isResetting, setIsResetting] = useState(false)
+    const [preferences, setPreferences] = useState<NotificationPreferencesState>({
         emailAccountActivity: true,
         emailSecurityAlerts: true,
         emailMarketing: false,
@@ -16,9 +40,41 @@ export default function NotificationSettingsPage() {
         inAppSystem: true,
         inAppProjects: true,
         inAppMentions: true,
+        pushEnabled: false,
+        pushBrowser: true,
+        pushMobile: false,
     })
 
-    const handleToggle = (key: keyof typeof preferences) => {
+    // Load preferences from backend on mount
+    useEffect(() => {
+        loadPreferences()
+    }, [])
+
+    const loadPreferences = async () => {
+        setIsLoading(true)
+        try {
+            const data = await getNotificationPreferences()
+            setPreferences({
+                emailAccountActivity: data.emailAccountActivity,
+                emailSecurityAlerts: data.emailSecurityAlerts,
+                emailMarketing: data.emailMarketing,
+                emailWeeklyDigest: data.emailWeeklyDigest,
+                inAppSystem: data.inAppSystem,
+                inAppProjects: data.inAppProjects,
+                inAppMentions: data.inAppMentions,
+                pushEnabled: data.pushEnabled ?? false,
+                pushBrowser: data.pushBrowser ?? true,
+                pushMobile: data.pushMobile ?? false,
+            })
+        } catch (error) {
+            console.error("Failed to load notification preferences:", error)
+            toast.error("Failed to load preferences. Using defaults.")
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    const handleToggle = (key: keyof NotificationPreferencesState) => {
         setPreferences((prev) => ({
             ...prev,
             [key]: !prev[key],
@@ -28,14 +84,121 @@ export default function NotificationSettingsPage() {
     const onSubmit = async () => {
         setIsSubmitting(true)
         try {
-            // TODO: Call API to update notification preferences
-            // await updateNotificationPreferences(preferences)
+            await updateNotificationPreferences(preferences)
             toast.success("Notification preferences updated successfully!")
-        } catch (error) {
-            toast.error("Failed to update preferences. Please try again.")
+        } catch (error: any) {
+            const message =
+                error instanceof ApiClientError
+                    ? error.message
+                    : "Failed to update preferences. Please try again."
+            toast.error(message)
         } finally {
             setIsSubmitting(false)
         }
+    }
+
+    const handleReset = async () => {
+        setIsResetting(true)
+        try {
+            const resetPrefs = await resetNotificationPreferences()
+            setPreferences({
+                emailAccountActivity: resetPrefs.emailAccountActivity,
+                emailSecurityAlerts: resetPrefs.emailSecurityAlerts,
+                emailMarketing: resetPrefs.emailMarketing,
+                emailWeeklyDigest: resetPrefs.emailWeeklyDigest,
+                inAppSystem: resetPrefs.inAppSystem,
+                inAppProjects: resetPrefs.inAppProjects,
+                inAppMentions: resetPrefs.inAppMentions,
+                pushEnabled: resetPrefs.pushEnabled ?? false,
+                pushBrowser: resetPrefs.pushBrowser ?? true,
+                pushMobile: resetPrefs.pushMobile ?? false,
+            })
+            toast.success("Notification preferences reset to defaults!")
+        } catch (error: any) {
+            const message =
+                error instanceof ApiClientError
+                    ? error.message
+                    : "Failed to reset preferences. Please try again."
+            toast.error(message)
+        } finally {
+            setIsResetting(false)
+        }
+    }
+
+    if (isLoading) {
+        return (
+            <div className="space-y-6">
+                <div>
+                    <Skeleton className="h-8 w-64 mb-2" />
+                    <Skeleton className="h-4 w-96" />
+                </div>
+
+                <div className="space-y-8">
+                    {/* Email Notifications Skeleton */}
+                    <div className="space-y-4">
+                        <div>
+                            <Skeleton className="h-6 w-40 mb-2" />
+                            <Skeleton className="h-4 w-80" />
+                        </div>
+                        <div className="space-y-4">
+                            {[1, 2, 3, 4].map((i) => (
+                                <div key={i} className="flex items-center justify-between">
+                                    <div className="space-y-2 flex-1">
+                                        <Skeleton className="h-4 w-32" />
+                                        <Skeleton className="h-3 w-64" />
+                                    </div>
+                                    <Skeleton className="h-6 w-11 rounded-full" />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* In-App Notifications Skeleton */}
+                    <div className="space-y-4">
+                        <div>
+                            <Skeleton className="h-6 w-40 mb-2" />
+                            <Skeleton className="h-4 w-80" />
+                        </div>
+                        <div className="space-y-4">
+                            {[1, 2, 3].map((i) => (
+                                <div key={i} className="flex items-center justify-between">
+                                    <div className="space-y-2 flex-1">
+                                        <Skeleton className="h-4 w-32" />
+                                        <Skeleton className="h-3 w-64" />
+                                    </div>
+                                    <Skeleton className="h-6 w-11 rounded-full" />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Push Notifications Skeleton */}
+                    <div className="space-y-4">
+                        <div>
+                            <Skeleton className="h-6 w-40 mb-2" />
+                            <Skeleton className="h-4 w-80" />
+                        </div>
+                        <div className="space-y-4">
+                            {[1, 2, 3].map((i) => (
+                                <div key={i} className="flex items-center justify-between">
+                                    <div className="space-y-2 flex-1">
+                                        <Skeleton className="h-4 w-32" />
+                                        <Skeleton className="h-3 w-64" />
+                                    </div>
+                                    <Skeleton className="h-6 w-11 rounded-full" />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Action Buttons Skeleton */}
+                <div className="flex justify-end gap-3 pt-4 border-t">
+                    <Skeleton className="h-10 w-24" />
+                    <Skeleton className="h-10 w-32" />
+                </div>
+            </div>
+        )
     }
 
     return (
@@ -169,29 +332,78 @@ export default function NotificationSettingsPage() {
                         </div>
                     </div>
                 </div>
+
+                {/* Push Notifications */}
+                <div className="space-y-4">
+                    <div>
+                        <h3 className="text-lg font-medium">Push Notifications</h3>
+                        <p className="text-sm text-muted-foreground">
+                            Enable push notifications to receive real-time updates
+                        </p>
+                    </div>
+
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <div className="space-y-0.5">
+                                <Label htmlFor="push-enabled">Enable Push Notifications</Label>
+                                <p className="text-sm text-muted-foreground">
+                                    Master switch for all push notifications
+                                </p>
+                            </div>
+                            <Switch
+                                id="push-enabled"
+                                checked={preferences.pushEnabled}
+                                onCheckedChange={() => handleToggle("pushEnabled")}
+                            />
+                        </div>
+
+                        {preferences.pushEnabled && (
+                            <>
+                                <div className="flex items-center justify-between">
+                                    <div className="space-y-0.5">
+                                        <Label htmlFor="push-browser">Browser Push</Label>
+                                        <p className="text-sm text-muted-foreground">
+                                            Receive push notifications in your browser
+                                        </p>
+                                    </div>
+                                    <Switch
+                                        id="push-browser"
+                                        checked={preferences.pushBrowser}
+                                        onCheckedChange={() => handleToggle("pushBrowser")}
+                                        disabled={!preferences.pushEnabled}
+                                    />
+                                </div>
+
+                                <div className="flex items-center justify-between">
+                                    <div className="space-y-0.5">
+                                        <Label htmlFor="push-mobile">Mobile Push</Label>
+                                        <p className="text-sm text-muted-foreground">
+                                            Receive push notifications on mobile devices (if app is installed)
+                                        </p>
+                                    </div>
+                                    <Switch
+                                        id="push-mobile"
+                                        checked={preferences.pushMobile}
+                                        onCheckedChange={() => handleToggle("pushMobile")}
+                                        disabled={!preferences.pushEnabled}
+                                    />
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </div>
             </div>
 
             <div className="flex justify-end gap-3 pt-4 border-t">
                 <Button
                     type="button"
                     variant="outline"
-                    onClick={() => {
-                        // Reset to defaults
-                        setPreferences({
-                            emailAccountActivity: true,
-                            emailSecurityAlerts: true,
-                            emailMarketing: false,
-                            emailWeeklyDigest: false,
-                            inAppSystem: true,
-                            inAppProjects: true,
-                            inAppMentions: true,
-                        })
-                    }}
-                    disabled={isSubmitting}
+                    onClick={handleReset}
+                    disabled={isSubmitting || isResetting}
                 >
-                    Reset
+                    {isResetting ? "Resetting..." : "Reset to Defaults"}
                 </Button>
-                <Button onClick={onSubmit} disabled={isSubmitting}>
+                <Button onClick={onSubmit} disabled={isSubmitting || isResetting}>
                     {isSubmitting ? "Saving..." : "Save Changes"}
                 </Button>
             </div>

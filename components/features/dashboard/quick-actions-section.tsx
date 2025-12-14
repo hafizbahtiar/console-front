@@ -1,34 +1,44 @@
 "use client"
 
 import Link from "next/link"
+import { useAuth } from "@/contexts/auth-context"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Plus, Users, FileText, ShoppingCart } from "lucide-react"
+import { Plus, Settings, Briefcase, Shield } from "lucide-react"
 
 export function QuickActionsSection() {
-    const actions = [
+    const { user } = useAuth()
+
+    // Base actions for all users
+    const baseActions = [
         {
-            title: "New Customer",
-            description: "Add a new customer to your system",
-            icon: Users,
-            href: "/dashboard/customers/new",
+            title: "Settings",
+            description: "Manage your account settings",
+            icon: Settings,
+            href: "/settings",
             variant: "default" as const,
-        },
-        {
-            title: "Create Invoice",
-            description: "Generate a new invoice",
-            icon: FileText,
-            href: "/dashboard/invoices/new",
-            variant: "default" as const,
-        },
-        {
-            title: "New Order",
-            description: "Create a new order",
-            icon: ShoppingCart,
-            href: "/dashboard/orders/new",
-            variant: "outline" as const,
         },
     ]
+
+    // Owner-only actions
+    const ownerActions = user?.role === "owner" ? [
+        {
+            title: "New Project",
+            description: "Add a new portfolio project",
+            icon: Briefcase,
+            href: "/portfolio/projects/new",
+            variant: "default" as const,
+        },
+        {
+            title: "Admin Dashboard",
+            description: "View system health and metrics",
+            icon: Shield,
+            href: "/admin/dashboard",
+            variant: "outline" as const,
+        },
+    ] : []
+
+    const actions = [...baseActions, ...ownerActions]
 
     return (
         <Card>
@@ -39,27 +49,33 @@ export function QuickActionsSection() {
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <div className="grid gap-3 md:grid-cols-3">
-                    {actions.map((action) => {
-                        const Icon = action.icon
-                        return (
-                            <Button
-                                key={action.title}
-                                asChild
-                                variant={action.variant}
-                                className="h-auto flex-col items-start justify-start gap-2 p-4"
-                            >
-                                <Link href={action.href}>
-                                    <Icon className="h-5 w-5" />
-                                    <div className="text-left">
-                                        <div className="font-semibold">{action.title}</div>
-                                        <div className="text-xs opacity-70">{action.description}</div>
-                                    </div>
-                                </Link>
-                            </Button>
-                        )
-                    })}
-                </div>
+                {actions.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                        No quick actions available
+                    </p>
+                ) : (
+                    <div className="grid gap-3 md:grid-cols-3">
+                        {actions.map((action) => {
+                            const Icon = action.icon
+                            return (
+                                <Button
+                                    key={action.title}
+                                    asChild
+                                    variant={action.variant}
+                                    className="h-auto flex-col items-start justify-start gap-2 p-4"
+                                >
+                                    <Link href={action.href}>
+                                        <Icon className="h-5 w-5" />
+                                        <div className="text-left">
+                                            <div className="font-semibold">{action.title}</div>
+                                            <div className="text-xs opacity-70">{action.description}</div>
+                                        </div>
+                                    </Link>
+                                </Button>
+                            )
+                        })}
+                    </div>
+                )}
             </CardContent>
         </Card>
     )

@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useAuth } from "@/contexts/auth-context"
 import { Button } from "@/components/ui/button"
 import { AvatarUpload } from "@/components/ui/avatar-upload"
+import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "sonner"
 import { z } from "zod"
 import { updateProfile, uploadAvatar } from "@/lib/api/settings"
@@ -25,7 +26,7 @@ const profileSchema = z.object({
 type ProfileFormData = z.infer<typeof profileSchema>
 
 export default function ProfileSettingsPage() {
-  const { user, refreshUser } = useAuth()
+  const { user, isLoading: authLoading, refreshUser } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
 
@@ -102,8 +103,90 @@ export default function ProfileSettingsPage() {
     }
   }
 
-  if (!user) {
-    return null
+  if (authLoading || !user) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <Skeleton className="h-8 w-64 mb-2" />
+          <Skeleton className="h-4 w-96" />
+        </div>
+
+        <div className="space-y-6">
+          {/* Avatar Upload Section Skeleton */}
+          <div className="space-y-4">
+            <div>
+              <Skeleton className="h-6 w-32 mb-2" />
+              <Skeleton className="h-4 w-64" />
+            </div>
+            <div className="flex items-center gap-4">
+              <Skeleton className="h-24 w-24 rounded-full" />
+              <div className="space-y-2 flex-1">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            </div>
+          </div>
+
+          {/* Basic Info Section Skeleton */}
+          <div className="space-y-6">
+            <div>
+              <Skeleton className="h-6 w-40 mb-2" />
+              <Skeleton className="h-4 w-64" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-16" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+          </div>
+
+          {/* Profile Details Section Skeleton */}
+          <div className="space-y-6">
+            <div>
+              <Skeleton className="h-6 w-36 mb-2" />
+              <Skeleton className="h-4 w-64" />
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-12" />
+              <Skeleton className="h-24 w-full" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons Skeleton */}
+          <div className="flex justify-end gap-3">
+            <Skeleton className="h-10 w-24" />
+            <Skeleton className="h-10 w-32" />
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (

@@ -33,7 +33,7 @@ export function AppearanceSection({ control }: AppearanceSectionProps) {
                         control={control}
                         render={({ field }) => (
                             <Select value={field.value} onValueChange={field.onChange}>
-                                <SelectTrigger id="theme">
+                                <SelectTrigger id="theme" className="w-full">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -53,7 +53,7 @@ export function AppearanceSection({ control }: AppearanceSectionProps) {
                         control={control}
                         render={({ field }) => (
                             <Select value={field.value} onValueChange={field.onChange}>
-                                <SelectTrigger id="language">
+                                <SelectTrigger id="language" className="w-full">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>

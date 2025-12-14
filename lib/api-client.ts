@@ -61,12 +61,17 @@ interface RequestOptions extends RequestInit {
      * If false, return the full response object (default: false for backward compatibility)
      */
     extractData?: boolean;
+    /**
+     * If true, require admin role (owner) for this request
+     * Will throw an error if user doesn't have admin privileges
+     */
+    requireAdmin?: boolean;
 }
 
 /**
  * Get stored access token from localStorage
  */
-function getAccessToken(): string | null {
+export function getAccessToken(): string | null {
     if (typeof window === 'undefined') return null;
     return localStorage.getItem('accessToken');
 }
@@ -77,6 +82,14 @@ function getAccessToken(): string | null {
 function getRefreshToken(): string | null {
     if (typeof window === 'undefined') return null;
     return localStorage.getItem('refreshToken');
+}
+
+/**
+ * Get stored user role from localStorage
+ */
+function getUserRole(): string | null {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('userRole');
 }
 
 /**
@@ -111,6 +124,14 @@ export function clearTokens(): void {
 
     logger.log('Tokens cleared');
 }
+
+/**
+ * Lightweight token pair shape (mirrors AuthResponse subset)
+ */
+type TokenPair = {
+    accessToken?: string;
+    refreshToken?: string;
+};
 
 /**
  * Refresh access token using refresh token
@@ -149,24 +170,38 @@ async function refreshAccessToken(): Promise<string | null> {
             return null;
         }
 
-        const data = await response.json();
-        if (!data.accessToken || !data.refreshToken) {
+        const data: unknown = await response.json();
+        const tokens: TokenPair = isSuccessResponse<TokenPair>(data)
+            ? data.data
+            : (data as TokenPair);
+        const accessToken = tokens?.accessToken;
+        const newRefreshToken = tokens?.refreshToken;
+
+        if (!accessToken || !newRefreshToken) {
             logger.error('Token refresh response missing tokens', data);
             clearTokens();
             return null;
         }
 
-        setTokens(data.accessToken, data.refreshToken);
+        setTokens(accessToken, newRefreshToken);
         logger.log('Token refreshed successfully', {
-            accessTokenLength: data.accessToken.length,
-            refreshTokenLength: data.refreshToken.length,
+            accessTokenLength: accessToken.length,
+            refreshTokenLength: newRefreshToken.length,
         });
-        return data.accessToken;
+        return accessToken;
     } catch (error) {
         logger.error('Token refresh error', error);
         clearTokens();
         return null;
     }
+}
+
+/**
+ * Check if current user has admin privileges
+ */
+export function hasAdminAccess(): boolean {
+    const userRole = getUserRole();
+    return userRole === 'owner';
 }
 
 /**
@@ -176,7 +211,15 @@ export async function apiClient<T = any>(
     endpoint: string,
     options: RequestOptions = {}
 ): Promise<T> {
-    const { skipAuth = false, extractData: shouldExtractData = false, headers = {}, ...fetchOptions } = options;
+    const { skipAuth = false, extractData: shouldExtractData = false, requireAdmin = false, headers = {}, ...fetchOptions } = options;
+
+    // Check admin access if required
+    if (requireAdmin && !hasAdminAccess()) {
+        throw new ApiClientError(
+            'Administrator access required. You do not have permission to perform this action.',
+            403
+        );
+    }
     const fullUrl = `${API_URL}${endpoint}`;
     const method = fetchOptions.method || 'GET';
 
@@ -552,6 +595,123 @@ export async function putData<T>(
             ...options,
             method: 'PUT',
             body: JSON.stringify(body),
+        }
+    );
+    return extractData(response);
+}
+
+/**
+ * Admin-only GET request
+ */
+export function getAdmin<T = any>(endpoint: string, options?: RequestOptions): Promise<T> {
+    return apiClient<T>(endpoint, { ...options, requireAdmin: true });
+}
+
+/**
+ * Admin-only POST request
+ */
+export function postAdmin<T = any>(
+    endpoint: string,
+    body?: any,
+    options?: RequestOptions
+): Promise<T> {
+    return apiClient<T>(endpoint, {
+        ...options,
+        requireAdmin: true,
+        method: 'POST',
+        body: JSON.stringify(body),
+    });
+}
+
+/**
+ * Admin-only PUT request
+ */
+export function putAdmin<T = any>(
+    endpoint: string,
+    body?: any,
+    options?: RequestOptions
+): Promise<T> {
+    return apiClient<T>(endpoint, {
+        ...options,
+        requireAdmin: true,
+        method: 'PUT',
+        body: JSON.stringify(body),
+    });
+}
+
+/**
+ * Admin-only PATCH request
+ */
+export function patchAdmin<T = any>(
+    endpoint: string,
+    body?: any,
+    options?: RequestOptions
+): Promise<T> {
+    return apiClient<T>(endpoint, {
+        ...options,
+        requireAdmin: true,
+        method: 'PATCH',
+        body: JSON.stringify(body),
+    });
+}
+
+/**
+ * Admin-only DELETE request
+ */
+export function deleteAdmin<T = any>(endpoint: string, body?: any, options?: RequestOptions): Promise<T> {
+    return apiClient<T>(endpoint, {
+        ...options,
+        requireAdmin: true,
+        method: 'DELETE',
+        body: body ? JSON.stringify(body) : undefined,
+    });
+}
+
+/**
+ * Admin-only GET request and extract data
+ */
+export async function getAdminData<T>(
+    endpoint: string,
+    options?: RequestOptions
+): Promise<T> {
+    const response = await apiClient<SuccessResponse<T> | T>(endpoint, { ...options, requireAdmin: true });
+    return extractData(response);
+}
+
+/**
+ * Admin-only POST request and extract data
+ */
+export async function postAdminData<T>(
+    endpoint: string,
+    body?: any,
+    options?: RequestOptions
+): Promise<T> {
+    const response = await apiClient<SuccessResponse<T> | T>(
+        endpoint,
+        {
+            ...options,
+            requireAdmin: true,
+            method: 'POST',
+            body: JSON.stringify(body),
+        }
+    );
+    return extractData(response);
+}
+
+/**
+ * POST FormData request and extract data
+ */
+export async function postFormData<T>(
+    endpoint: string,
+    formData: FormData,
+    options?: RequestOptions
+): Promise<T> {
+    const response = await apiClient<SuccessResponse<T> | T>(
+        endpoint,
+        {
+            ...options,
+            method: 'POST',
+            body: formData,
         }
     );
     return extractData(response);

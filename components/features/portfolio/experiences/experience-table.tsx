@@ -7,7 +7,7 @@ import { DataTable } from "@/components/ui/data-table"
 import { PaginationMeta } from "@/lib/types/api-response"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { CalendarDays, MapPin, Briefcase } from "lucide-react"
+import { CalendarDays, MapPin, Briefcase, Trash2 } from "lucide-react"
 import { format } from "date-fns"
 
 interface ExperienceTableProps {
@@ -22,6 +22,9 @@ interface ExperienceTableProps {
   isLoading?: boolean
   onEdit?: (experience: Experience) => void
   onDelete?: (experience: Experience) => void
+  enableRowSelection?: boolean
+  onSelectionChange?: (selectedExperiences: Experience[]) => void
+  onBulkDelete?: (selectedExperiences: Experience[]) => void
 }
 
 export function ExperienceTable({
@@ -36,6 +39,9 @@ export function ExperienceTable({
   isLoading,
   onEdit,
   onDelete,
+  enableRowSelection = false,
+  onSelectionChange,
+  onBulkDelete,
 }: ExperienceTableProps) {
   const columns = React.useMemo<ColumnDef<Experience, any>[]>(
     () => [
@@ -190,6 +196,23 @@ export function ExperienceTable({
       isLoading={isLoading}
       emptyTitle="No experiences yet"
       emptyDescription="Start by adding your professional experiences and roles."
+      enableRowSelection={enableRowSelection}
+      getRowId={(row) => row.id}
+      onSelectionChange={onSelectionChange}
+      renderBulkActions={
+        onBulkDelete
+          ? (selected) => (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => onBulkDelete(selected)}
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete Selected ({selected.length})
+            </Button>
+          )
+          : undefined
+      }
     />
   )
 }

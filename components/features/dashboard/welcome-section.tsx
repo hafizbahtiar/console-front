@@ -10,10 +10,10 @@ export function WelcomeSection() {
 
     return (
         <div className="space-y-2">
-            <h1 className="text-3xl font-bold">
+            <h1 className="text-2xl md:text-3xl font-bold">
                 {greeting}, {displayName} 👋
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-sm md:text-base text-muted-foreground">
                 Welcome back to Console. Here's what's happening today.
             </p>
         </div>

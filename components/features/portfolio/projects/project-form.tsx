@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
+import { ImageUpload } from "@/components/ui/image-upload"
 
 const projectSchema = z.object({
   title: z.string().min(2, "Title must be at least 2 characters"),
@@ -36,6 +37,9 @@ export function ProjectForm({
   onCancel,
   isSubmitting,
 }: ProjectFormProps) {
+  const [imageUrl, setImageUrl] = useState<string | undefined>(initialValues?.image)
+  const [isUploadingImage, setIsUploadingImage] = useState(false)
+
   const {
     register,
     handleSubmit,
@@ -56,6 +60,7 @@ export function ProjectForm({
 
   useEffect(() => {
     if (initialValues) {
+      setImageUrl(initialValues.image)
       reset({
         title: initialValues.title,
         description: initialValues.description ?? "",
@@ -68,23 +73,36 @@ export function ProjectForm({
     }
   }, [initialValues, reset])
 
+  const handleImageUpload = async (url: string | string[]) => {
+    setIsUploadingImage(true)
+    try {
+      const imageUrlString = Array.isArray(url) ? url[0] : url
+      setImageUrl(imageUrlString)
+    } catch (error) {
+      console.error("Failed to upload image:", error)
+    } finally {
+      setIsUploadingImage(false)
+    }
+  }
+
   const internalSubmit = async (values: ProjectFormValues) => {
     const payload: CreateProjectDto | UpdateProjectDto = {
       title: values.title,
       description: values.description || undefined,
       url: values.url || undefined,
       githubUrl: values.githubUrl || undefined,
+      image: imageUrl || undefined,
       tags: values.tags
         ? values.tags
-            .split(",")
-            .map((t) => t.trim())
-            .filter(Boolean)
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean)
         : [],
       technologies: values.technologies
         ? values.technologies
-            .split(",")
-            .map((t) => t.trim())
-            .filter(Boolean)
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean)
         : [],
       featured: values.featured ?? false,
     }
@@ -102,6 +120,23 @@ export function ProjectForm({
             {String(errors.title.message)}
           </p>
         )}
+      </div>
+
+      <div className="space-y-2">
+        <Label>Project Image</Label>
+        <ImageUpload
+          value={imageUrl}
+          onUpload={handleImageUpload}
+          label="Project Image"
+          previewSize="md"
+          aspectRatio="16/9"
+          showUrlInput={true}
+          disabled={isSubmitting || isUploadingImage}
+          className="w-full"
+        />
+        <p className="text-xs text-muted-foreground">
+          Upload a project screenshot or image (recommended: 16:9 aspect ratio)
+        </p>
       </div>
 
       <div className="space-y-2">

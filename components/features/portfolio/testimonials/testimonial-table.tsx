@@ -7,7 +7,7 @@ import { DataTable } from "@/components/ui/data-table"
 import { PaginationMeta } from "@/lib/types/api-response"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Star, MessageSquare, User } from "lucide-react"
+import { Star, MessageSquare, User, Trash2 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 interface TestimonialTableProps {
@@ -22,6 +22,9 @@ interface TestimonialTableProps {
     isLoading?: boolean
     onEdit?: (testimonial: Testimonial) => void
     onDelete?: (testimonial: Testimonial) => void
+    enableRowSelection?: boolean
+    onSelectionChange?: (selectedTestimonials: Testimonial[]) => void
+    onBulkDelete?: (selectedTestimonials: Testimonial[]) => void
 }
 
 export function TestimonialTable({
@@ -36,6 +39,9 @@ export function TestimonialTable({
     isLoading,
     onEdit,
     onDelete,
+    enableRowSelection = false,
+    onSelectionChange,
+    onBulkDelete,
 }: TestimonialTableProps) {
     const columns = React.useMemo<ColumnDef<Testimonial, any>[]>(
         () => [
@@ -165,6 +171,23 @@ export function TestimonialTable({
             isLoading={isLoading}
             emptyTitle="No testimonials yet"
             emptyDescription="Start by adding testimonials from your clients and colleagues."
+            enableRowSelection={enableRowSelection}
+            getRowId={(row) => row.id}
+            onSelectionChange={onSelectionChange}
+            renderBulkActions={
+                onBulkDelete
+                    ? (selected) => (
+                        <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => onBulkDelete(selected)}
+                        >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Delete Selected ({selected.length})
+                        </Button>
+                    )
+                    : undefined
+            }
         />
     )
 }

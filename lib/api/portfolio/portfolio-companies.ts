@@ -1,5 +1,6 @@
 import { del, getPaginatedData, getData, postData, patchData } from '@/lib/api-client'
 import { PaginationMeta } from '@/lib/types/api-response'
+import { BulkDeleteResponse } from './types'
 
 export interface Company {
     id: string
@@ -57,5 +58,9 @@ export async function updateCompany(id: string, data: UpdateCompanyDto): Promise
 
 export async function deleteCompany(id: string): Promise<void> {
     return del<void>(`/portfolio/companies/${id}`)
+}
+
+export async function bulkDeleteCompanies(ids: string[]): Promise<BulkDeleteResponse> {
+    return postData<BulkDeleteResponse>('/portfolio/companies/bulk-delete', { ids })
 }
 

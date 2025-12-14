@@ -7,7 +7,7 @@ import { DataTable } from "@/components/ui/data-table"
 import { PaginationMeta } from "@/lib/types/api-response"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { CalendarDays, School } from "lucide-react"
+import { CalendarDays, School, Trash2 } from "lucide-react"
 import { format } from "date-fns"
 
 interface EducationTableProps {
@@ -22,6 +22,9 @@ interface EducationTableProps {
   isLoading?: boolean
   onEdit?: (education: Education) => void
   onDelete?: (education: Education) => void
+  enableRowSelection?: boolean
+  onSelectionChange?: (selectedEducation: Education[]) => void
+  onBulkDelete?: (selectedEducation: Education[]) => void
 }
 
 export function EducationTable({
@@ -36,6 +39,9 @@ export function EducationTable({
   isLoading,
   onEdit,
   onDelete,
+  enableRowSelection = false,
+  onSelectionChange,
+  onBulkDelete,
 }: EducationTableProps) {
   const columns = React.useMemo<ColumnDef<Education, any>[]>(
     () => [
@@ -144,6 +150,23 @@ export function EducationTable({
       isLoading={isLoading}
       emptyTitle="No education yet"
       emptyDescription="Start by adding your education history."
+      enableRowSelection={enableRowSelection}
+      getRowId={(row) => row.id}
+      onSelectionChange={onSelectionChange}
+      renderBulkActions={
+        onBulkDelete
+          ? (selected) => (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => onBulkDelete(selected)}
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete Selected ({selected.length})
+            </Button>
+          )
+          : undefined
+      }
     />
   )
 }

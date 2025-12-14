@@ -6,9 +6,11 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { toast } from "sonner"
 import { z } from "zod"
 import { changePassword } from "@/lib/api/settings"
+import { ApiClientError } from "@/lib/api-client"
 
 const changePasswordSchema = z
     .object({
@@ -34,6 +36,8 @@ export default function SecuritySettingsPage() {
     const [showCurrentPassword, setShowCurrentPassword] = useState(false)
     const [showNewPassword, setShowNewPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+    const [formData, setFormData] = useState<ChangePasswordFormData | null>(null)
 
     const {
         register,
@@ -46,16 +50,29 @@ export default function SecuritySettingsPage() {
 
 
     const onSubmit = async (data: ChangePasswordFormData) => {
+        // Store form data and show confirmation dialog
+        setFormData(data)
+        setShowConfirmDialog(true)
+    }
+
+    const handleConfirmPasswordChange = async () => {
+        if (!formData) return
+
         setIsSubmitting(true)
         try {
             await changePassword({
-                currentPassword: data.currentPassword,
-                newPassword: data.newPassword,
+                currentPassword: formData.currentPassword,
+                newPassword: formData.newPassword,
             })
             toast.success("Password changed successfully!")
             reset()
-        } catch (error) {
-            toast.error("Failed to change password. Please try again.")
+            setFormData(null)
+        } catch (error: any) {
+            const message =
+                error instanceof ApiClientError
+                    ? error.message
+                    : "Failed to change password. Please try again."
+            toast.error(message)
         } finally {
             setIsSubmitting(false)
         }
@@ -164,6 +181,18 @@ export default function SecuritySettingsPage() {
                     </form>
                 </div>
             </div>
+
+            {/* Password Change Confirmation Dialog */}
+            <ConfirmDialog
+                open={showConfirmDialog}
+                onOpenChange={setShowConfirmDialog}
+                title="Confirm Password Change"
+                description="Are you sure you want to change your password? You will need to use your new password to log in next time."
+                confirmText="Change Password"
+                confirmVariant="default"
+                isLoading={isSubmitting}
+                onConfirm={handleConfirmPasswordChange}
+            />
         </div>
     )
 }

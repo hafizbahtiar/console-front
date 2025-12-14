@@ -1,5 +1,6 @@
 import { patch, del, getPaginatedData, getData, postData, patchData } from '@/lib/api-client'
 import { PaginationMeta } from '@/lib/types/api-response'
+import type { BulkDeleteResponse } from './types'
 
 export interface Contact {
     id: string
@@ -20,7 +21,7 @@ export interface CreateContactDto {
     active?: boolean
 }
 
-export interface UpdateContactDto extends Partial<CreateContactDto> {}
+export interface UpdateContactDto extends Partial<CreateContactDto> { }
 
 export interface ContactListResponse {
     data: Contact[]
@@ -59,5 +60,9 @@ export async function deleteContact(id: string): Promise<void> {
 
 export async function reorderContacts(contactIds: string[]): Promise<void> {
     return patch<void>('/portfolio/contacts/reorder', { contactIds })
+}
+
+export async function bulkDeleteContacts(ids: string[]): Promise<BulkDeleteResponse> {
+    return postData<BulkDeleteResponse>('/portfolio/contacts/bulk-delete', { ids })
 }
 

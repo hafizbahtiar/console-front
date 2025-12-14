@@ -7,11 +7,13 @@ import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { z } from "zod"
 import { getPreferences, updatePreferences, resetPreferences, type UpdatePreferencesDto } from "@/lib/api/settings"
+import { ApiClientError } from "@/lib/api-client"
 import { AppearanceSection } from "@/components/features/settings/preferences/appearance-section"
 import { DateTimeSection } from "@/components/features/settings/preferences/datetime-section"
 import { DashboardSection } from "@/components/features/settings/preferences/dashboard-section"
 import { EditorSection } from "@/components/features/settings/preferences/editor-section"
 import { DataPrivacySection } from "@/components/features/settings/preferences/data-privacy-section"
+import { CurrencySection } from "@/components/features/settings/preferences/currency-section"
 import { Loader2 } from "lucide-react"
 
 const preferencesSchema = z.object({
@@ -98,9 +100,13 @@ export default function PreferencesSettingsPage() {
             if (typeof window !== "undefined") {
                 localStorage.setItem("userPreferences", JSON.stringify(formData))
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to load preferences:", error)
-            toast.error("Failed to load preferences. Using defaults.")
+            const message =
+                error instanceof ApiClientError
+                    ? error.message
+                    : "Failed to load preferences. Using defaults."
+            toast.error(message)
             // Fallback to localStorage if backend fails
             const stored = typeof window !== "undefined" ? localStorage.getItem("userPreferences") : null
             if (stored) {
@@ -163,13 +169,13 @@ export default function PreferencesSettingsPage() {
             }
 
             toast.success("Preferences updated successfully!")
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to update preferences:", error)
-            toast.error(
-                error instanceof Error
+            const message =
+                error instanceof ApiClientError
                     ? error.message
                     : "Failed to update preferences. Please try again."
-            )
+            toast.error(message)
         } finally {
             setIsSubmitting(false)
         }
@@ -204,9 +210,13 @@ export default function PreferencesSettingsPage() {
             }
 
             toast.success("Preferences reset to defaults!")
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to reset preferences:", error)
-            toast.error("Failed to reset preferences. Please try again.")
+            const message =
+                error instanceof ApiClientError
+                    ? error.message
+                    : "Failed to reset preferences. Please try again."
+            toast.error(message)
         } finally {
             setIsResetting(false)
         }
@@ -273,6 +283,11 @@ export default function PreferencesSettingsPage() {
                     </Button>
                 </div>
             </form>
+
+            {/* Currency Preferences Section (separate from main form) */}
+            <div className="mt-8 pt-8 border-t">
+                <CurrencySection control={control} />
+            </div>
         </div>
     )
 }

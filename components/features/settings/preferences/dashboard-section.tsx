@@ -34,7 +34,7 @@ export function DashboardSection({ control }: DashboardSectionProps) {
                         control={control}
                         render={({ field }) => (
                             <Select value={field.value} onValueChange={field.onChange}>
-                                <SelectTrigger id="default-dashboard-view">
+                                <SelectTrigger id="default-dashboard-view" className="w-full">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -54,7 +54,7 @@ export function DashboardSection({ control }: DashboardSectionProps) {
                         control={control}
                         render={({ field }) => (
                             <Select value={field.value} onValueChange={field.onChange}>
-                                <SelectTrigger id="items-per-page">
+                                <SelectTrigger id="items-per-page" className="w-full">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>

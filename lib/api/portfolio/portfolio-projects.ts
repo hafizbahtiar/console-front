@@ -1,5 +1,6 @@
 import { patch, del, getPaginatedData, getData, postData, patchData } from '@/lib/api-client'
 import { PaginationMeta } from '@/lib/types/api-response'
+import { BulkDeleteResponse } from './types'
 
 export interface Project {
     id: string
@@ -73,5 +74,9 @@ export async function deleteProject(id: string): Promise<void> {
 
 export async function reorderProjects(projectIds: string[]): Promise<void> {
     return patch<void>('/portfolio/projects/reorder', { projectIds })
+}
+
+export async function bulkDeleteProjects(ids: string[]): Promise<BulkDeleteResponse> {
+    return postData<BulkDeleteResponse>('/portfolio/projects/bulk-delete', { ids })
 }
 

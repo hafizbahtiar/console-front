@@ -224,3 +224,59 @@ export async function updatePreferences(data: UpdatePreferencesDto): Promise<Pre
 export async function resetPreferences(): Promise<Preferences> {
     return postData<Preferences>('/settings/preferences/reset')
 }
+
+/**
+ * Notification Preferences
+ */
+export interface NotificationPreferences {
+    id: string
+    userId: string
+    emailAccountActivity: boolean
+    emailSecurityAlerts: boolean
+    emailMarketing: boolean
+    emailWeeklyDigest: boolean
+    inAppSystem: boolean
+    inAppProjects: boolean
+    inAppMentions: boolean
+    pushEnabled?: boolean
+    pushBrowser?: boolean
+    pushMobile?: boolean
+    createdAt: string
+    updatedAt: string
+}
+
+export interface UpdateNotificationPreferencesDto {
+    emailAccountActivity?: boolean
+    emailSecurityAlerts?: boolean
+    emailMarketing?: boolean
+    emailWeeklyDigest?: boolean
+    inAppSystem?: boolean
+    inAppProjects?: boolean
+    inAppMentions?: boolean
+    pushEnabled?: boolean
+    pushBrowser?: boolean
+    pushMobile?: boolean
+}
+
+/**
+ * Get user notification preferences
+ */
+export async function getNotificationPreferences(): Promise<NotificationPreferences> {
+    return getData<NotificationPreferences>('/notifications/preferences')
+}
+
+/**
+ * Update user notification preferences
+ */
+export async function updateNotificationPreferences(
+    data: UpdateNotificationPreferencesDto
+): Promise<NotificationPreferences> {
+    return patchData<NotificationPreferences>('/notifications/preferences', data)
+}
+
+/**
+ * Reset notification preferences to defaults
+ */
+export async function resetNotificationPreferences(): Promise<NotificationPreferences> {
+    return postData<NotificationPreferences>('/notifications/preferences/reset')
+}

@@ -1,888 +1,257 @@
-# Console - Development TODO
+# Console Frontend - Development TODO
 
-## Phase 1: Authentication
+> **Note**: For completed tasks, see [TODO-COMPLETED.md](./TODO-COMPLETED.md)
+>
+> This file focuses on **pending and future work** only.
 
-### 🎉 Status: Phase 1 Core Complete!
-
-**✅ All core authentication features are implemented and working:**
-
-- Frontend API integration complete
-- Auth context and state management working
-- Form validation with Zod
-- Route protection with Next.js middleware
-- Token storage and automatic refresh
-- Error handling and user feedback
-
-**⚠️ Remaining (Optional/Enhancement):**
-
-- Dashboard integration with real user data from `useAuth()`
-- OAuth integration (GitHub button exists, needs handler)
+**Last Updated**: 04 Dec 2025
 
 ---
 
-### 📊 Current State Analysis
+## 📋 Current Status Summary
 
-#### ✅ Completed
+### ✅ Completed Features
 
-- **UI/UX Implementation**
-  - Login page with Appwrite-inspired design
-  - Signup page with terms acceptance
-  - Password visibility toggle
-  - Password requirements display
-  - GitHub OAuth button (UI only)
-  - Responsive design (mobile/desktop)
-  - Dark theme styling
-  - Form validation (basic HTML5 required)
+- **Phase 1: Authentication** - ✅ Complete (except OAuth and dashboard integration)
+- **Phase 2: Portfolio Data Management** - ✅ Complete (except public view)
+- **Phase 3: Admin Dashboard & Monitoring** - ✅ Complete
+- **Phase 4: Finance Management** - ✅ Complete (including Recurring Transactions, Budget Management, Financial Goals)
+- **Settings Module** - ✅ Mostly Complete
+- **Standard Response Handlers** - ✅ Complete
 
-#### ✅ Backend Status (Complete)
+### 🚧 In Progress / Planned
 
-- **Backend Integration** ✅
-  - ✅ All API endpoints implemented (`/api/v1/auth/*`)
-  - ✅ User, Account, Session schemas created
-  - ✅ MongoDB connection working
-  - ✅ JWT/Passport setup complete
-  - ✅ Argon2 password hashing implemented
-  - ✅ Email service implemented (welcome, forgot password, password changed, verify)
-  - ✅ Email verification endpoints ready
-  - ✅ Token rotation implemented
-  - ✅ All security measures in place (CORS, rate limiting, Helmet)
+- **Finance Enhancements** - Transaction Templates ✅ COMPLETE, Quick Add Transaction, Transaction Duplication, Transaction Import/Export (New Features)
+- **Global Command Palette** (Mac-like quick command launcher)
+  - [x] Add global keyboard shortcut (e.g., `⌘K` / `Ctrl+K`) to open command palette
+  - [x] Include navigation commands (routes, settings pages, finance sections)
+  - [x] Include common actions (create transaction, upload receipt, open filters, toggle theme)
+  - [x] Add fuzzy search with debounce and keyboard navigation (via cmdk)
+  - [x] Show context-aware suggestions based on current page (optional)
+  - [x] Ensure accessible focus management and ARIA labeling
+  - [ ] Wire to existing API helpers where relevant (e.g., quick actions)
+- **Responsive Audit (All Modules/Pages/Components)** - IN PROGRESS
+  - [x] Review each major page for mobile/tablet/desktop: dashboard, settings (profile/preferences/notifications), finance (overview/transactions/import/analytics/categories/mappings), portfolio (projects/companies/skills/experiences/blog), admin/monitoring, auth screens
+  - [x] Verify key feature components adapt on small screens: tables (DataTable, transaction tables), charts/analytics, forms (transaction, settings, auth), dialogs/drawers/sheets, sidebar/header/command palette, file uploads (image/receipt), filter builders, search/autocomplete, calendars/timelines
+  - [x] Ensure navigation patterns are usable on mobile: collapsible sidebar, header overflow menus, command palette accessibility, keyboard/focus, skip links where applicable
+  - [x] Check typography, spacing, and grid/stack breakpoints; ensure no horizontal scroll and sensible gutters on <=640px
+  - [x] Add missing responsive variants (stack vs grid, column reflow, overflow handling, compact table variants, touch targets)
+  - [ ] Spot-check critical flows on real devices or emulators (iOS/Android, Safari/Chrome); verify zoom/viewport meta and safe-area insets if needed
+  - **Status**: Comprehensive audit completed. See [responsive-audit.md](./docs/responsive-audit.md) for full report.
+  - **Fixes Applied**: Finance dashboard export buttons optimized for mobile (dropdown on mobile, buttons on desktop), date range selector made responsive
 
-#### ✅ Frontend Integration (Complete)
+See [TODO-COMPLETED.md](./TODO-COMPLETED.md) for full details.
 
-- **Frontend Integration** ✅
+**Health Check**: Frontend is ~95% complete. Core features work well, but some enhancements and testing remain.
 
-  - ✅ API client created (`lib/api-client.ts`) with fetch wrapper
-  - ✅ Auth API functions created (`lib/api/auth.ts`)
-  - ✅ Environment variable configured (`NEXT_PUBLIC_API_URL`)
-  - ✅ Request/response interceptors with automatic token refresh
-  - ✅ Error handling utilities with timeout support
-  - ✅ Form validation with Zod schemas
-  - ✅ Password strength validation
-  - ✅ Toast notifications (sonner) integrated
-  - ✅ Real API calls (no more setTimeout mocks)
+### ✅ Route Structure Refactoring - COMPLETE
 
-- **State Management** ✅
+**Current Structure:**
 
-  - ✅ Auth context created (`contexts/auth-context.tsx`)
-  - ✅ useAuth hook implemented
-  - ✅ Token storage (localStorage + cookies for middleware)
-  - ✅ Session management
-  - ✅ User state persistence
+- `(private)` - All authenticated users: dashboard, settings ✅
+- `(owner)` - Owner-only: portfolio, admin ✅
 
-- **Route Protection** ✅
+**Completed Changes:**
 
-  - ✅ Next.js middleware created (`middleware.ts`)
-  - ✅ Protected `/dashboard/**` routes
-  - ✅ Redirect logic (auth → dashboard, unauthenticated → login)
-  - ⚠️ Dashboard still uses hardcoded user data (needs integration)
-
-- **Additional Features** ✅
-  - ✅ Forgot password page created and integrated
-  - ✅ Password reset page created and integrated
-  - ✅ Email verification page created and integrated
-  - ⚠️ OAuth/GitHub integration (button exists, no handler)
+1. ✅ Moved `(private)/admin` → `(owner)/admin`
+2. ✅ Created owner layout with role checking
+3. ✅ Updated admin layout to work within owner layout
+4. ✅ Updated sidebar to show portfolio/admin links for owners only
+5. ✅ Removed redundant owner checks from admin pages
+6. ✅ Fixed settings layout (removed incorrect owner check)
+7. ✅ Build passes successfully
 
 ---
 
-### 🎯 Phase 1 Tasks
+## 🎯 Pending Tasks
 
-#### 1. Backend Setup (NestJS) ✅ COMPLETE
+### High Priority (Production Readiness)
 
-- [x] **Database Configuration**
+#### Route Structure Refactoring (Owner vs Private Separation) ✅ COMPLETE
 
-  - [x] Set up MongoDB connection (Mongoose)
-  - [x] Create database module
-  - [x] Configure environment variables
+- [x] **Move Admin to Owner Route Group**
 
-- [x] **User Model/Schema**
+  - [x] Move `app/(private)/admin` → `app/(owner)/admin`
+  - [x] Update admin layout to use owner layout structure
+  - [x] Remove owner role checks from admin pages (handled by layout)
+  - [x] Update admin navigation links and references
+  - [x] Update sidebar to show admin link only for owners
+  - [x] Verify all admin routes are accessible only to owners
+  - [x] Build passes successfully
 
-  - [x] Create User, Account, Session schemas
-  - [x] Add email uniqueness constraint
-  - [x] Add password hashing with Argon2
+- [x] **Owner Layout Structure**
 
-- [x] **Auth Module**
+  - [x] Create `app/(owner)/layout.tsx` to handle owner-only routes
+  - [x] Add owner role check in owner layout
+  - [x] Ensure portfolio and admin share the same owner layout
+  - [x] Owner layout uses main sidebar (portfolio + admin navigation)
 
-  - [x] Create Auth module
-  - [x] Create Auth controller
-  - [x] Create Auth service
-  - [x] Set up JWT strategies (Access & Refresh)
-  - [x] Configure JWT secrets and expiration
+- [x] **Private Layout Structure**
 
-- [x] **API Endpoints**
+  - [x] Ensure `app/(private)/layout.tsx` is for all authenticated users
+  - [x] Fixed settings layout (removed incorrect owner check)
+  - [x] Settings and dashboard work for all authenticated users
 
-  - [x] `POST /api/v1/auth/register` - User registration
-  - [x] `POST /api/v1/auth/login` - User login
-  - [x] `POST /api/v1/auth/logout` - User logout
-  - [x] `GET /api/v1/auth/me` - Get current user
-  - [x] `POST /api/v1/auth/refresh` - Refresh token (with rotation)
-  - [x] `POST /api/v1/auth/forgot-password` - Request password reset
-  - [x] `POST /api/v1/auth/reset-password` - Reset password with token
-  - [x] `POST /api/v1/auth/verify-email` - Verify email address
+- [x] **URL Structure**
 
-- [x] **Security**
-  - [x] Implement password hashing (Argon2)
-  - [x] Add rate limiting for auth endpoints
-  - [x] Add CORS configuration
-  - [x] Add request validation (DTOs)
-  - [x] Add security headers (Helmet)
+  - [x] URLs remain consistent:
+    - `/dashboard` - All users (in `(private)`)
+    - `/settings/*` - All users (in `(private)`)
+    - `/admin/*` - Owner only (in `(owner)`)
+    - `/portfolio/*` - Owner only (in `(owner)`)
 
-#### 2. Frontend API Integration ✅ COMPLETE
+- [x] **Sidebar Navigation Updates**
 
-- [x] **API Client Setup**
+  - [x] Updated `AppSidebar` to conditionally show:
+    - Portfolio link (owner only) ✅
+    - Admin link (owner only) ✅
+    - Dashboard link (all users) ✅
+    - Settings link (all users) ✅
 
-  - [x] Create `lib/api-client.ts` - Fetch wrapper with timeout
-  - [x] Create `lib/api/auth.ts` - Auth API functions
-  - [x] Add environment variable `NEXT_PUBLIC_API_URL` (`.env.local`)
-  - [x] Configure request/response interceptors
-  - [x] Add error handling utilities with detailed logging
-  - [x] Automatic token refresh on 401
-  - [x] Token storage in localStorage and cookies
+- [ ] **Testing & Verification** (Recommended Next Step)
+  - [ ] Manually test admin routes as owner user
+  - [ ] Manually test admin routes as regular user (should redirect to /403)
+  - [ ] Manually test portfolio routes as owner user
+  - [ ] Manually test portfolio routes as regular user (should redirect to /403)
+  - [ ] Manually test settings routes as both owner and regular user (should work for both)
+  - [ ] Manually test dashboard route as both owner and regular user (should work for both)
 
-- [x] **Form Validation**
+#### Phase 1: Authentication - Remaining Items
 
-  - [x] Create Zod schemas for login/signup forms
-  - [x] Integrate react-hook-form with Zod
-  - [x] Add password strength validation
-  - [x] Add email format validation
-  - [x] Add real-time validation feedback with error messages
+- [x] **Dashboard Integration** ✅
 
-- [x] **API Integration**
-  - [x] Replace setTimeout mock in login page
-  - [x] Replace setTimeout mock in signup page
-  - [x] Add error handling and display
-  - [x] Add success notifications (toast)
-  - [x] Add loading states
+  - [x] Update dashboard layout to use real user data from `useAuth()`
+  - [x] Add error boundary for auth errors
+  - [x] Update StatsSection to show real portfolio stats for owners
+  - [x] Update QuickActionsSection with actual app features
+  - [x] Dashboard now shows different content based on user role
 
-#### 3. State Management ✅ COMPLETE
-
-- [x] **Auth Context**
-
-  - [x] Create `contexts/auth-context.tsx`
-  - [x] Create `hooks/use-auth.ts` (integrated in context)
-  - [x] Implement user state management
-  - [x] Implement token storage (localStorage + cookies for middleware)
-  - [x] Add session persistence
-  - [x] Skip auth check if no token (prevents unnecessary API calls)
-
-- [x] **Auth Hooks**
-  - [x] `useAuth()` - Get current auth state
-  - [x] `login()` - Login mutation
-  - [x] `register()` - Signup mutation
-  - [x] `logout()` - Logout function
-  - [x] `refreshUser()` - Refresh user data
-
-#### 4. Route Protection ✅ COMPLETE
-
-- [x] **Middleware**
-
-  - [x] Create `middleware.ts` for route protection
-  - [x] Protect `/dashboard/**` routes
-  - [x] Redirect unauthenticated users to `/login`
-  - [x] Redirect authenticated users away from `/login` and `/signup`
-  - [x] Cookie-based token checking for middleware
-
-- [ ] **Protected Routes**
-  - [ ] Update dashboard layout to use real user data from `useAuth()`
-  - [x] Add loading state while checking auth (in AuthProvider)
-  - [ ] Add error boundary for auth errors
-
-#### 5. Additional Features ✅ COMPLETE
-
-- [x] **Forgot Password**
-
-  - [x] Create forgot password page (`/forgot-password`)
-  - [x] Add form with email input
-  - [x] Integrate with backend API
-  - [x] Add success message with proper UI
-  - [x] Match login/signup design pattern
-
-- [x] **Password Reset**
-
-  - [x] Create reset password page (`/reset-password?token=...`)
-  - [x] Add form with new password inputs
-  - [x] Integrate with backend API
-  - [x] Add token validation
-  - [x] Password visibility toggle
-  - [x] Password strength requirements
-  - [x] Error handling for invalid/expired tokens
-
-- [x] **Email Verification**
-
-  - [x] Create email verification page (`/verify-email?token=...`)
-  - [x] Add verification status display (loading, success, error)
-  - [x] Integrate with backend API
-  - [x] Auto-verify on page load
-  - [x] Proper error handling
-
-- [ ] **OAuth Integration** (Optional for Phase 1)
+- [ ] **OAuth Integration** (Optional/Enhancement)
   - [ ] Set up GitHub OAuth app
   - [ ] Create backend OAuth endpoints
   - [ ] Integrate GitHub OAuth button
   - [ ] Handle OAuth callback
 
-#### 6. Error Handling & UX ✅ COMPLETE
+#### Testing
 
-- [x] **Error Display**
+- [ ] **Unit Tests**
 
-  - [x] Error message display in forms (field-level)
-  - [x] Display API errors in forms
-  - [x] Add field-level error messages (Zod validation)
-  - [x] Add toast notifications (using sonner)
+  - [ ] Test auth context and hooks
+  - [ ] Test API client functions
+  - [ ] Test form validation schemas
+  - [ ] Test portfolio components
+  - [ ] Test admin components
 
-- [x] **Loading States**
-
-  - [x] Loading indicators on buttons
-  - [x] Disable form during submission
-  - [x] Loading state in auth context
-
-- [x] **Success States**
-  - [x] Add success messages (toast)
-  - [x] Redirect after successful login/signup (to dashboard)
-  - [ ] Show welcome message (optional)
-
-#### 7. Testing & Documentation
-
-- [ ] **Testing**
+- [ ] **Integration Tests**
 
   - [ ] Test login flow
   - [ ] Test signup flow
-  - [ ] Test error scenarios
   - [ ] Test protected routes
-  - [ ] Test token expiration handling
+  - [ ] Test portfolio CRUD operations
+  - [ ] Test error scenarios
 
-- [ ] **Documentation**
-  - [ ] Document API endpoints
+- [ ] **E2E Tests**
+  - [ ] Test complete auth flow
+  - [ ] Test token expiration handling
+  - [ ] Test password reset flow
+  - [ ] Test portfolio management flow
+
+#### Documentation
+
+- [ ] **Component Documentation**
+
+  - [ ] Add Storybook setup
+  - [ ] Document shared components
+  - [ ] Document feature components
+  - [ ] Add usage examples
+
+- [ ] **API Integration Documentation**
+
+  - [ ] Document API client usage
+  - [ ] Document response types
+  - [ ] Document error handling
   - [ ] Document environment variables
-  - [ ] Add inline code comments
+
+- [ ] **Deployment Documentation**
+  - [ ] Document build process
+  - [ ] Document environment configuration
+  - [ ] Document deployment steps
   - [ ] Update README with setup instructions
 
 ---
 
-### 🔧 Technical Stack Decisions Needed
+### Medium Priority (Enhancement)
 
-1. **Token Storage**
+#### Settings Module - Remaining Items
 
-   - Option A: httpOnly cookies (more secure, CSRF protection needed)
-   - Option B: localStorage (easier, but XSS vulnerable)
-   - **Recommendation**: httpOnly cookies for production
+- [x] **Avatar Management** ✅
 
-2. **Form Management**
+  - [x] Create avatar upload component
+  - [x] Add image preview
+  - [x] Add image cropping (optional) - using react-easy-crop
+  - [x] Add image size/format validation (5MB max, image types)
+  - [x] Add remove avatar option
+  - [x] Integrate with file upload API
+  - [x] Add `uploadAvatar()` function to settings API
+  - [x] Backend supports both file upload and URL
+  - [x] Backend automatically resizes to 400x400
+  - [x] Integrated in Profile Settings page
 
-   - Already have: react-hook-form, zod
-   - **Action**: Integrate them properly
+- [x] **Notification Settings** ✅
 
-3. **State Management**
+  - [x] Create notification preferences form
+  - [x] Add notification categories (Email, In-App, Push)
+  - [x] Add toggle switches for each preference
+  - [x] Integrate with backend API (`/api/v1/notifications/preferences`)
+  - [x] Add `getNotificationPreferences()` and `updateNotificationPreferences()` functions
+  - [x] Add reset to defaults functionality
+  - [x] Add loading states with skeletons
+  - [x] Backend fully implemented with all endpoints
 
-   - Option A: React Context (simpler, good for auth)
-   - Option B: Zustand/Redux (if more complex state needed later)
-   - **Recommendation**: React Context for Phase 1
-
-4. **API Client**
-   - Option A: Axios (more features)
-   - Option B: Native fetch (lighter, built-in)
-   - **Recommendation**: Native fetch with wrapper
-
----
-
-### 📝 Notes
-
-- Backend is NestJS with MongoDB (Mongoose)
-- Frontend is Next.js 16 with React 19
-- UI uses shadcn/ui components
-- Form validation: Zod + react-hook-form (already installed)
-- Toast notifications: sonner (already installed)
-- Current auth pages are UI-complete but non-functional
-
----
-
-### 🚀 Priority Order
-
-1. **High Priority** (Core functionality)
-
-   - Backend auth endpoints
-   - Frontend API integration
-   - Auth context/state management
-   - Route protection
-   - Form validation
-
-2. **Medium Priority** (User experience)
-
-   - Error handling
-   - Loading states
-   - Success notifications
-   - Password reset flow
-
-3. **Low Priority** (Nice to have)
-   - Email verification
-   - OAuth integration
-   - Advanced security features
-
----
-
-## Settings Module (Frontend)
-
-### 🎯 Overview
-
-Comprehensive settings module for user account management, profile customization, notification preferences, and application settings.
-
-### ✅ Completed
-
-- Settings layout and navigation (responsive with mobile support)
-- Profile settings page with full API integration and Danger Zone
-- Sessions management page with device detection
-- Security settings page (password change form)
-- Preferences settings page (appearance, dashboard, editor, data export)
-- Profile API integration (`updateProfile`)
-
-### 📋 Settings Module Tasks
-
-#### 1. Settings Layout & Navigation
-
-- [x] **Settings Dashboard**
-
-  - [x] Create settings layout (`/dashboard/settings`)
-  - [x] Create settings navigation sidebar
-  - [x] Add settings menu items (Profile, Notifications, Preferences, Security, etc.)
-  - [x] Add active state indicators
-  - [x] Add separator between nav and content
-  - [ ] Make navigation responsive (mobile menu)
-
-- [x] **Settings Container**
-  - [x] Create reusable settings container component
-  - [x] Add settings header with breadcrumbs (via AppHeader)
-  - [x] Add settings content area
-  - [x] Settings layout properly positioned (nav stays on left)
-
-#### 2. Profile Settings ✅ COMPLETE
-
-- [x] **Profile Settings Page** (`/settings/profile`)
-
-  - [x] Display current user profile information
-  - [x] Create profile form with fields:
-    - [x] First Name
-    - [x] Last Name
-    - [x] Display Name
-    - [x] Username (read-only)
-    - [x] Email (read-only)
-    - [x] Bio/About Me (textarea)
-    - [x] Location
-    - [x] Website/Portfolio URL
-    - [ ] Avatar upload component
-  - [x] Add form validation (Zod schema)
-  - [x] Add save/cancel buttons
-  - [x] Add loading states
-  - [x] Add success/error notifications
-  - [x] Integrate with backend API
-  - [x] Add "Danger Zone" section with delete account functionality
-
-- [ ] **Avatar Management**
-
-  - [ ] Create avatar upload component
-  - [ ] Add image preview
-  - [ ] Add image cropping (optional)
-  - [ ] Add image size/format validation
-  - [ ] Add remove avatar option
-  - [ ] Integrate with file upload API
-
-- [x] **Profile API Integration**
-  - [x] Create `lib/api/settings.ts` for profile API calls
-  - [x] Add `updateProfile()` function
-  - [x] Add error handling
-  - [ ] Add `uploadAvatar()` function (pending file upload service)
-
-#### 3. Notification Settings
-
-- [ ] **Notification Settings Page** (`/settings/notifications`)
-
-  - [ ] Create notification preferences form
-  - [ ] Add notification categories:
-    - [ ] **In-App Notifications**
-      - [ ] System notifications
-      - [ ] Project updates
-      - [ ] Team mentions
-      - [ ] Activity feed
-    - [ ] **Push Notifications** (if implemented)
-      - [ ] Enable push notifications
-      - [ ] Browser push settings
-      - [ ] Mobile push settings
-  - [ ] Add toggle switches for each preference
-  - [ ] Add save/cancel buttons
-  - [ ] Add loading states
-  - [ ] Integrate with backend API (`/api/v1/notifications/preferences`)
-
-- [ ] **Email Preferences Page** (`/settings/email`)
+- [ ] **Email Preferences** (if separate from notifications)
 
   - [ ] Create email preferences form
-  - [ ] Add email notification categories:
-    - [ ] **Account Activity**
-      - [ ] Login notifications
-      - [ ] Password changes
-      - [ ] Email changes
-      - [ ] Security alerts
-    - [ ] **Marketing & Updates**
-      - [ ] Marketing emails (optional)
-      - [ ] Weekly digest
-      - [ ] Product updates
-      - [ ] Feature announcements
-  - [ ] Add toggle switches for each preference
-  - [ ] Add save/cancel buttons
-  - [ ] Add loading states
+  - [ ] Add email notification categories
   - [ ] Integrate with backend API (`/api/v1/email/preferences`)
 
-- [ ] **Notification Preferences API**
+- [x] **Settings Components** ✅
 
-  - [ ] Add `getNotificationPreferences()` function
-  - [ ] Add `updateNotificationPreferences()` function
-  - [ ] Add notification preference types/interfaces
+  - [x] Create reusable `SettingsSection` component
+  - [x] Create reusable `SettingsCard` component
+  - [x] Create reusable form field components (`SettingsFormField`)
+  - [x] Create reusable `SettingsPageHeader` component
+  - [x] Create reusable `SettingsActionButtons` component
+  - [x] Export all components from index.ts for easy imports
 
-- [ ] **Email Preferences API**
-  - [ ] Add `getEmailPreferences()` function
-  - [ ] Add `updateEmailPreferences()` function
-  - [ ] Add email preference types/interfaces
+- [ ] **Settings Navigation** (Minor)
+  - [ ] Make navigation responsive (mobile menu)
 
-#### 4. Preferences Settings ✅ COMPLETE
+#### Portfolio Module - Remaining Items
 
-- [x] **Preferences Settings Page** (`/settings/preferences`)
+- [x] **Image Upload Integration** ✅
 
-  - [x] Create preferences form with react-hook-form
-  - [x] Add preference categories:
-    - [x] **Appearance**
-      - [x] Theme selection (Light, Dark, System)
-      - [x] Language selection
-      - [x] Date format
-      - [x] Time format
-      - [x] Timezone
-    - [x] **Dashboard**
-      - [x] Default dashboard view (Grid, List, Table)
-      - [x] Items per page
-      - [x] Show/hide widgets toggle
-    - [x] **Editor**
-      - [x] Editor theme (Light, Dark, Monokai, GitHub)
-      - [x] Font size (10-24)
-      - [x] Line height (1-3)
-      - [x] Tab size (2-8)
-    - [x] **Data & Privacy**
-      - [x] Data export option with download
-  - [x] Add save/cancel buttons
-  - [x] Add loading states
-  - [x] localStorage integration for client-side preferences
-  - [ ] Backend API integration (optional - can be added later)
+  - [x] Add image upload component to project forms
+  - [x] Add logo upload component to company forms
+  - [x] Integrate with existing `ImageUpload` component
+  - [x] Project form supports 16:9 aspect ratio images
+  - [x] Company form supports 1:1 aspect ratio logos
+  - [x] Both forms include image/logo in submission payload
 
-- [ ] **Preferences API Integration** (Optional)
-  - [ ] Add `getPreferences()` function
-  - [ ] Add `updatePreferences()` function
-  - [ ] Add preference types/interfaces
-  - [x] Handle client-side preferences (theme, etc.) - localStorage implemented
+- [x] **Drag-and-Drop Reordering** ✅
 
-#### 5. Security Settings
+  - [x] Add project drag-and-drop reordering (using existing `DragDropList`)
+  - [x] Add testimonial drag-and-drop reordering (using existing `DragDropList`)
+  - [x] Added view mode toggle (Table/Reorder) for both pages
+  - [x] Integrated with `reorderProjects` and `reorderTestimonials` API
+  - [x] Auto-save on reorder with loading states
+  - [x] Error handling with toast notifications
 
-- [x] **Security Settings Page** (`/settings/security`)
+- [ ] **Blog Preview** (Enhancement)
+  - [ ] Add markdown preview functionality to blog editor
 
-  - [x] Password change form implemented
-  - [x] Password change API integration complete
+#### Phase 2: Portfolio - Public View
 
-- [x] **Sessions Page** (`/settings/sessions`)
-
-  - [x] Dedicated sessions management page created
-  - [x] List active and inactive sessions
-  - [x] Device information display (browser, OS, device type)
-  - [x] Current device identification and badge
-  - [x] Revoke individual sessions
-  - [x] Revoke all sessions (except current)
-  - [x] Responsive design with mobile support
-
-  - [x] Create security settings form
-  - [x] Add security sections:
-    - [x] **Password**
-      - [x] Change password form
-      - [x] Current password field
-      - [x] New password field
-      - [x] Confirm password field
-      - [x] Password strength indicator
-    - [ ] **Two-Factor Authentication** (if implemented)
-      - [ ] Enable/disable 2FA
-      - [ ] Setup 2FA flow
-      - [ ] Backup codes display
-    - [x] **Active Sessions**
-      - [x] UI structure for active sessions
-      - [x] List active sessions (integrate with backend)
-      - [x] Show device, location, last activity
-      - [x] Add "Sign out from all devices" option
-      - [x] Add "Revoke session" for individual sessions
-      - [x] Add "Current Device" badge identification
-    - [ ] **API Keys** (if applicable)
-      - [ ] List API keys
-      - [ ] Create new API key
-      - [ ] Revoke API key
-  - [x] Add save/cancel buttons
-  - [x] Add loading states
-  - [ ] Integrate with backend API
-
-- [x] **Security API Integration**
-  - [x] Add `changePassword()` function
-  - [x] Add `getActiveSessions()` function
-  - [x] Add `revokeSession()` function
-  - [x] Add `revokeAllSessions()` function
-
-#### 6. Account Settings
-
-- [x] **Account Settings Page** (`/settings/account`)
-
-  - [x] Create dedicated account settings page
-  - [x] Add account information section:
-    - [x] Account creation date display
-    - [x] Last login date display
-    - [x] Account status display (Active/Inactive)
-    - [x] Email verification status
-    - [x] Account type (Email/OAuth)
-  - [x] Add data export section:
-    - [x] "Download Your Data" button
-    - [x] Export format options (JSON, CSV)
-    - [x] Include all user data (profile, portfolio, sessions, etc.)
-    - [x] Generate and download data export file
-  - [x] Add account deletion section (Danger Zone):
-    - [x] Move delete account from profile page
-    - [x] Request account deletion button (sends confirmation email)
-    - [x] Account deletion confirmation flow:
-      - [x] Confirmation token input field
-      - [x] Delete account button (disabled until token provided)
-      - [x] Warning messages about permanent deletion
-      - [x] List of data that will be deleted
-    - [x] Confirmation dialog for final deletion
-    - [x] Loading states for delete operation
-  - [x] Add deactivate account option (optional):
-    - [x] Deactivate account button
-    - [x] Reactivate account option
-    - [x] Confirmation dialog
-  - [x] Add account settings navigation link in settings sidebar
-
-- [x] **Account API Integration**
-  - [x] Add `requestAccountDeletion()` function (sends confirmation email)
-  - [x] Add `deleteAccount(confirmationToken)` function (with confirmation token)
-  - [x] Add `exportAccountData()` function (downloads user data)
-  - [x] Add `deactivateAccount()` function (optional)
-  - [x] Add `reactivateAccount()` function (optional)
-
-#### 7. Shared Components
-
-- [ ] **Settings Components**
-
-  - [ ] Create `SettingsLayout` component
-  - [ ] Create `SettingsNav` component
-  - [ ] Create `SettingsSection` component
-  - [ ] Create `SettingsCard` component
-  - [ ] Create `ToggleSwitch` component (for preferences)
-  - [ ] Create `SelectDropdown` component (for dropdowns)
-  - [ ] Create `ConfirmationDialog` component (for destructive actions)
-
-- [ ] **Form Components**
-  - [ ] Create reusable form field components
-  - [ ] Create form validation helpers
-  - [ ] Create form error display components
-
-#### 8. State Management
-
-- [ ] **Settings Context**
-
-  - [ ] Create `contexts/settings-context.tsx`
-  - [ ] Add settings state management
-  - [ ] Add `useSettings()` hook
-  - [ ] Add settings loading states
-  - [ ] Add settings update functions
-
-- [ ] **Preferences Hook**
-  - [ ] Create `hooks/usePreferences.ts`
-  - [ ] Handle theme switching
-  - [ ] Handle language switching
-  - [ ] Persist preferences (localStorage or API)
-
-#### 9. API Integration
-
-- [ ] **Settings API Client**
-
-  - [ ] Create `lib/api/settings.ts`
-  - [ ] Add all settings-related API functions
-  - [ ] Add error handling
-  - [ ] Add TypeScript interfaces
-
-- [ ] **Validation Schemas**
-  - [ ] Create `lib/validations/settings.ts`
-  - [ ] Add Zod schemas for:
-    - [ ] Profile update
-    - [ ] Password change
-    - [ ] Notification preferences
-    - [ ] App preferences
-
-#### 10. UI/UX Enhancements
-
-- [ ] **Settings Styling**
-
-  - [ ] Create `app/(dashboard)/settings/settings.css`
-  - [ ] Style settings navigation
-  - [ ] Style settings forms
-  - [ ] Add responsive design
-  - [ ] Add dark mode support
-
-- [ ] **User Feedback**
-
-  - [ ] Add toast notifications for all actions
-  - [ ] Add loading spinners
-  - [ ] Add success/error messages
-  - [ ] Add confirmation dialogs for destructive actions
-
-- [ ] **Accessibility**
-  - [ ] Add proper ARIA labels
-  - [ ] Add keyboard navigation
-  - [ ] Add focus management
-  - [ ] Ensure screen reader compatibility
-
----
-
-### 🚀 Settings Module Priority Order
-
-1. **High Priority** (Core Settings)
-
-   - Settings Layout & Navigation
-   - Profile Settings
-   - Security Settings (Password Change)
-
-2. **Medium Priority** (User Experience)
-
-   - Notification Settings
-   - Preferences Settings
-   - Account Settings
-
-3. **Low Priority** (Nice to have)
-   - Advanced security (2FA, API keys)
-   - Data export/import
-   - Advanced preferences
-
----
-
-### 📝 Settings Module Notes
-
-- **Theme Management**: Consider using a theme provider (e.g., next-themes) for theme switching
-- **Local Storage**: Some preferences (theme, language) can be stored client-side for instant updates
-- **API Storage**: User-specific preferences should be stored in the backend
-- **Security**: All security-related actions should require password confirmation
-- **Validation**: All forms should have proper validation before submission
-- **Error Handling**: Provide clear error messages for all failed operations
-
----
-
-## Phase 2: Portfolio Data Management
-
-### 🎯 Overview
-
-Portfolio management system for managing personal portfolio data including projects, companies, skills, experiences, and other portfolio-related content.
-
-### 📋 Phase 2 Tasks
-
-#### 1. Portfolio Project Management
-
-- [x] **Backend**
-
-  - [x] Create `portfolio-project` module
-  - [x] Create Project schema (title, description, image, url, githubUrl, tags, technologies, startDate, endDate, featured, order, etc.)
-  - [x] Create Project DTOs (CreateProjectDto, UpdateProjectDto, ProjectResponseDto)
-  - [x] Create Project service (CRUD operations)
-  - [x] Create Project controller (REST API endpoints)
-  - [ ] Add image upload support (optional)
-  - [x] Add project ordering/sorting
-
-- [ ] **Frontend**
-  - [x] Create project list page (`/portfolio/projects`)
-  - [x] Create project form (create/edit)
-  - [x] Create project card component
-  - [x] Add project filtering and search
-  - [ ] Add project drag-and-drop reordering
-  - [ ] Add image upload component
-  - [x] Integrate with backend API
-
-#### 2. Portfolio Company Management
-
-- [x] **Backend**
-
-  - [x] Create `portfolio-company` module
-  - [x] Create Company schema (name, logo, website, description, industry, location, foundedYear, etc.)
-  - [x] Create Company DTOs
-  - [x] Create Company service (CRUD operations)
-  - [x] Create Company controller (REST API endpoints)
-  - [ ] Add logo upload support
-
-- [x] **Frontend**
-  - [x] Create company list page (`/portfolio/companies`)
-  - [x] Create company form (create/edit)
-  - [x] Create company card component
-  - [x] Add company filtering
-  - [ ] Add logo upload component
-  - [x] Integrate with backend API
-
-#### 3. Portfolio Skill Management
-
-- [x] **Backend**
-
-  - [x] Create `portfolio-skill` module
-  - [x] Create Skill schema (name, category, level, icon, color, order, etc.)
-  - [x] Create Skill DTOs
-  - [x] Create Skill service (CRUD operations)
-  - [x] Create Skill controller (REST API endpoints)
-  - [x] Add skill categories (Frontend, Backend, Database, DevOps, etc.)
-
-- [x] **Frontend**
-  - [x] Create skill list page (`/portfolio/skills`)
-  - [x] Create skill form (create/edit)
-  - [x] Create skill card/badge component
-  - [x] Add skill grouping by category
-  - [x] Add skill level visualization
-  - [x] Add drag-and-drop reordering
-  - [x] Integrate with backend API
-
-#### 4. Portfolio Experience Management
-
-- [x] **Backend**
-
-  - [x] Create `portfolio-experience` module
-  - [x] Create Experience schema (title, company, location, startDate, endDate, current, description, achievements, technologies, etc.)
-  - [x] Create Experience DTOs
-  - [x] Create Experience service (CRUD operations)
-  - [x] Create Experience controller (REST API endpoints)
-  - [x] Link experiences to companies (optional)
-
-- [x] **Frontend**
-  - [x] Create experience list page (`/portfolio/experiences`) using data-table
-  - [x] Create experience form (create/edit)
-  - [x] Create experience timeline component (dates column with formatted range)
-  - [x] Add date range validation
-  - [x] Add "current position" toggle
-  - [x] Integrate with backend API
-
-#### 5. Portfolio Education Management
-
-- [x] **Backend**
-
-  - [x] Create `portfolio-education` module
-  - [x] Create Education schema (institution, degree, field, startDate, endDate, gpa, description, etc.)
-  - [x] Create Education DTOs
-  - [x] Create Education service (CRUD operations)
-  - [x] Create Education controller (REST API endpoints)
-
-- [x] **Frontend**
-  - [x] Create education list page (`/portfolio/education`) using data-table
-  - [x] Create education form (create/edit)
-  - [x] Create education timeline component (dates column with formatted range)
-  - [x] Integrate with backend API
-
-#### 6. Portfolio Certification Management
-
-- [x] **Backend**
-
-  - [x] Create `portfolio-certification` module
-  - [x] Create Certification schema (name, issuer, issueDate, expiryDate, credentialId, credentialUrl, etc.)
-  - [x] Create Certification DTOs
-  - [x] Create Certification service (CRUD operations)
-  - [x] Create Certification controller (REST API endpoints)
-
-- [x] **Frontend**
-  - [x] Create certification list page (`/portfolio/certifications`) - using data-table like companies/projects
-  - [x] Create certification form (create/edit)
-  - [x] Create certification table component
-  - [x] Add expiry date tracking (expired/expiring soon/valid badges)
-  - [x] Integrate with backend API
-
-#### 7. Portfolio Blog/Article Management
-
-- [x] **Backend**
-
-  - [x] Create `portfolio-blog` or `portfolio-article` module
-  - [x] Create Blog schema (title, slug, content, excerpt, coverImage, published, publishedAt, tags, etc.)
-  - [x] Create Blog DTOs
-  - [x] Create Blog service (CRUD operations)
-  - [x] Create Blog controller (REST API endpoints)
-  - [x] Add markdown support (optional)
-
-- [x] **Frontend**
-  - [x] Create blog list page (`/portfolio/blog`) - using data-table like companies/projects
-  - [x] Create blog editor (create/edit)
-  - [x] Add markdown editor (textarea with markdown support)
-  - [ ] Add preview functionality (can be enhanced later)
-  - [x] Add publish/unpublish toggle (Switch component)
-  - [x] Integrate with backend API
-
-#### 8. Portfolio Testimonial Management
-
-- [x] **Backend**
-
-  - [x] Create `portfolio-testimonial` module
-  - [x] Create Testimonial schema (name, role, company, content, avatar, rating, featured, order, etc.)
-  - [x] Create Testimonial DTOs
-  - [x] Create Testimonial service (CRUD operations)
-  - [x] Create Testimonial controller (REST API endpoints)
-
-- [x] **Frontend**
-  - [x] Create testimonial list page (`/portfolio/testimonials`) - using data-table like companies/projects
-  - [x] Create testimonial form (create/edit)
-  - [x] Create testimonial table component
-  - [ ] Add drag-and-drop reordering (can be enhanced later)
-  - [x] Integrate with backend API
-
-#### 9. Portfolio Contact/Social Links Management
-
-- [x] **Backend**
-
-  - [x] Create `portfolio-contact` or `portfolio-social` module
-  - [x] Create Contact schema (platform, url, icon, order, active, etc.)
-  - [x] Create Contact DTOs
-  - [x] Create Contact service (CRUD operations)
-  - [x] Create Contact controller (REST API endpoints)
-
-- [x] **Frontend**
-  - [x] Create contact links page (`/portfolio/contacts`) - using data-table like companies/projects
-  - [x] Create contact form (create/edit)
-  - [x] Add platform presets (GitHub, LinkedIn, Twitter, etc.) - dropdown with auto-icon fill
-  - [x] Add icon field (auto-filled for preset platforms, can be customized)
-  - [x] Integrate with backend API
-
-#### 10. Portfolio Settings/Profile Management
-
-- [x] **Backend**
-
-  - [x] Create `portfolio-profile` or extend user profile
-  - [x] Create Profile schema (bio, avatar, resumeUrl, location, availableForHire, etc.)
-  - [x] Create Profile DTOs
-  - [x] Create Profile service (CRUD operations)
-  - [x] Create Profile controller (REST API endpoints)
-
-- [x] **Frontend**
-  - [x] Create profile settings page (`/portfolio/profile`) - using Card layout
-  - [x] Create profile form with all fields (bio, location, portfolioUrl, theme, availableForHire)
-  - [x] Add avatar URL input (with preview) - file upload coming soon
-  - [x] Add resume URL input (with link) - file upload coming soon
-  - [x] Integrate with backend API (GET, PATCH, POST avatar, POST resume)
-
-#### 11. Common Features
-
-- [ ] **Backend**
-
-  - [ ] Add image upload service (local or cloud storage)
-  - [ ] Add file upload service (for resumes, documents)
-  - [ ] Add ordering/sorting support for all portfolio items
-  - [ ] Add soft delete support
-  - [ ] Add bulk operations (delete, reorder, etc.)
-  - [ ] Add portfolio item relationships (e.g., project → skills, experience → company)
-
-- [ ] **Frontend**
-  - [ ] Create shared components (ImageUpload, FileUpload, DragDropList, etc.)
-  - [ ] Create dashboard layout with navigation
-  - [ ] Add data tables with sorting/filtering
-  - [ ] Add bulk selection and actions
-  - [ ] Add confirmation dialogs
-  - [ ] Add toast notifications for all operations
-  - [ ] Add loading states and skeletons
-
-#### 12. Portfolio Preview/Public View
-
-- [ ] **Backend**
+- [ ] **Backend** (Coordinate with backend team)
 
   - [ ] Create public portfolio API endpoints (read-only)
   - [ ] Add portfolio visibility settings
@@ -894,293 +263,610 @@ Portfolio management system for managing personal portfolio data including proje
   - [ ] Add portfolio theme customization
   - [ ] Add portfolio sharing functionality
 
-#### 13. Standard Reusable Response Handlers (Frontend)
+#### Phase 4: Finance Management (Owner-Only) ✅ COMPLETE
 
-- [x] Create response type definitions (`lib/types/api-response.ts`)
+**Note**: All Finance Management features are complete, including:
+- Finance Module Overview
+- Transaction Management
+- Expense/Income Category Management
+- Finance Dashboard/Analytics
+- Finance API Integration
+- Common Features
+- Recurring Transactions
+- Budget Management
+- Financial Goals
+- Transaction Receipt/Attachment (Backend ✅ Complete, Frontend ⏳ Pending - see below)
 
-  - [x] Define `SuccessResponse<T>` interface
-  - [x] Define `PaginatedResponse<T>` interface
-  - [x] Define `ErrorResponse` interface
-  - [x] Define `PaginationMeta` interface
-  - [x] Add type guards (`isSuccessResponse`, `isPaginatedResponse`, `isErrorResponse`)
+See [TODO-COMPLETED.md](./TODO-COMPLETED.md) for complete details.
 
-- [x] Update API client to handle standardized responses (`lib/api-client.ts`)
+#### Financial Goals (New Feature) ✅ COMPLETE
 
-  - [x] Add response transformation utilities
-  - [x] Extract `data` from `SuccessResponse` automatically (via `extractData` option)
-  - [x] Extract `data` and `pagination` from `PaginatedResponse` automatically
-  - [x] Handle error responses consistently
-  - [x] Add type-safe response helpers (`getData`, `getPaginatedData`, `postData`, `patchData`, `putData`)
+**Note**: Financial Goals feature is complete. See [TODO-COMPLETED.md](./TODO-COMPLETED.md) for details.
 
-- [x] Create response helper utilities (`lib/utils/response.util.ts`)
+#### Advanced Charts & Visualizations (Enhancement)
 
-  - [x] `extractData<T>()` - Extract data from SuccessResponse
-  - [x] `extractPaginatedData<T>()` - Extract data and pagination from PaginatedResponse
-  - [x] `extractPagination()` - Extract pagination metadata
-  - [x] Backward compatibility support for legacy response formats
+**Status**: Backend ✅ COMPLETE, Frontend ✅ COMPLETE
 
-- [ ] Update API functions to use standardized response types:
+**Backend Support**: All analytics endpoints are complete and ready:
+- ✅ Category trends (`GET /api/v1/finance/analytics/category-trends`)
+- ✅ Month-over-month comparison (`GET /api/v1/finance/analytics/comparison/mom`)
+- ✅ Year-over-year comparison (`GET /api/v1/finance/analytics/comparison/yoy`)
+- ✅ Forecast data (`GET /api/v1/finance/analytics/forecast`)
+- ✅ Heatmap calendar data (`GET /api/v1/finance/analytics/heatmap`)
+- ✅ Spending patterns (`GET /api/v1/finance/analytics/patterns`)
 
-  - [x] **Auth API** (`lib/api/auth.ts`)
-    - [x] `register()` - Handle SuccessResponse<AuthResponseDto>
-    - [x] `login()` - Handle SuccessResponse<AuthResponseDto>
-    - [x] `refreshToken()` - Handle SuccessResponse<AuthResponseDto>
-    - [x] `getCurrentUser()` - Handle SuccessResponse<UserResponseDto>
-    - [x] `forgotPassword()` - Handle SuccessResponse
-    - [x] `resetPassword()` - Handle SuccessResponse
-    - [x] `verifyEmail()` - Handle SuccessResponse
-  - [x] **Settings API** (`lib/api/settings.ts`)
-    - [x] `updateProfile()` - Handle SuccessResponse<UserResponseDto>
-    - [x] `getActiveSessions()` - Handle SuccessResponse<SessionResponseDto[]> (with backward compatibility)
-    - [x] `revokeSession()` - Handle SuccessResponse
-    - [x] `revokeAllSessions()` - Handle SuccessResponse
-    - [x] `changePassword()` - Handle SuccessResponse (moved from auth.ts)
-  - [x] **Portfolio API** (`lib/api/portfolio.ts`)
-    - [x] All project endpoints - Handle SuccessResponse/PaginatedResponse (using `getPaginatedData`, `getData`, `postData`, `patchData`)
-    - [x] All company endpoints - Handle SuccessResponse/PaginatedResponse (using `getPaginatedData`, `getData`, `postData`, `patchData`)
-    - [x] All skill endpoints - Handle SuccessResponse (using `getData`, `postData`, `patchData`)
-    - [x] All experience endpoints - Handle SuccessResponse/PaginatedResponse (using `getPaginatedData`, `getData`, `postData`, `patchData`)
-    - [x] All education endpoints - Handle SuccessResponse/PaginatedResponse (using `getPaginatedData`, `getData`, `postData`, `patchData`)
-    - [x] All certification endpoints - Handle SuccessResponse/PaginatedResponse (using `getPaginatedData`, `getData`, `postData`, `patchData`)
-    - [x] All blog endpoints - Handle SuccessResponse/PaginatedResponse (using `getPaginatedData`, `getData`, `postData`, `patchData`)
-    - [x] All testimonial endpoints - Handle SuccessResponse/PaginatedResponse (using `getPaginatedData`, `getData`, `postData`, `patchData`)
-    - [x] All contact endpoints - Handle SuccessResponse/PaginatedResponse (using `getPaginatedData`, `getData`, `postData`, `patchData`)
-    - [x] Profile endpoints - Handle SuccessResponse<PortfolioProfileResponseDto> (using `getData`, `patchData`, `postData`)
-  - [x] **Upload API** (`lib/api/upload.ts`)
-    - [x] Create upload API client functions (uploadImage, uploadImages, uploadDocument, uploadAvatar, uploadResume)
-    - [x] All upload endpoints - Handle SuccessResponse<UploadResponseDto> with automatic data extraction
-    - [x] FormData handling for file uploads (Content-Type header automatically set by browser)
-    - [x] Updated apiClient to detect FormData and skip Content-Type header (browser sets multipart/form-data with boundary)
-    - [x] UploadResponseDto interface matching backend structure (filename, originalName, mimetype, size, url, thumbnailUrl)
-    - [x] Error handling and validation (max 10 files for multiple uploads)
+**Frontend Implementation Tasks**:
 
-- [x] Update Portfolio API functions (`lib/api/portfolio.ts`)
+- [x] **API Integration** ✅ COMPLETE
+  - [x] Add `getCategoryTrends()` function to `finance-analytics.ts`
+  - [x] Add `getMonthOverMonthComparison()` function to `finance-analytics.ts`
+  - [x] Add `getYearOverYearComparison()` function to `finance-analytics.ts`
+  - [x] Add `getForecast()` function to `finance-analytics.ts`
+  - [x] Add `getHeatmapData()` function to `finance-analytics.ts`
+  - [x] Add `getSpendingPatterns()` function to `finance-analytics.ts`
+  - [x] Add TypeScript interfaces for all response types
+  - [x] Add error handling for all analytics endpoints
 
-  - [x] All list endpoints now use `getPaginatedData()` and return `{ data, pagination }`
-  - [x] All single item endpoints use `getData()`
-  - [x] All create/update endpoints use `postData()` / `patchData()`
-  - [x] Updated response types to match standardized format
+- [x] **Category Trends Chart** ✅ COMPLETE
+  - [x] Create `CategoryTrendsChart` component using shadcn chart components
+  - [x] Add category selector (single or multiple categories) - badge-based selection
+  - [x] Add aggregation selector (daily, weekly, monthly)
+  - [x] Add date range selector with quick range buttons (1M, 3M, 1Y)
+  - [x] Display trends as line chart or area chart (toggleable)
+  - [x] Add comparison mode (compare multiple categories) - supports multiple category selection
+  - [x] Add click handler to filter transactions by category/period (via `onCategoryClick` prop)
+  - [x] Add export button (PNG export ready, can be extended to SVG/PDF)
 
-- [ ] Update components/hooks to use standardized response format:
-  - [x] Update portfolio projects page to handle paginated responses
-  - [x] Update portfolio companies page to handle paginated responses
-  - [x] Update portfolio skills page (skills don't use pagination, but API updated)
-  - [x] Update portfolio experiences page - Handle paginated responses with server-side pagination
-  - [x] Update portfolio education page - Handle paginated responses with server-side pagination
-  - [x] Update portfolio certifications page - Handle paginated responses with server-side pagination
-  - [x] Update portfolio blog page - Handle paginated responses
-  - [x] Update portfolio testimonials page - Handle paginated responses with server-side pagination
-  - [x] Update portfolio contacts page - Handle paginated responses with server-side pagination
-  - [x] Update portfolio profile page - Already using standardized response (getData)
-  - [x] Update all forms to handle success/error responses (forms already handle errors via toast notifications)
-  - [x] Update data tables to use pagination metadata from backend
-    - [x] Updated DataTable component to accept optional `pagination` prop
-    - [x] DataTable now uses backend pagination metadata (hasNextPage, hasPreviousPage, totalPages) when available
-    - [x] Updated all table components (ProjectTable, CompanyTable, ExperienceTable, EducationTable, CertificationTable, BlogTable, TestimonialTable, ContactTable) to accept and pass pagination prop
-    - [x] Updated all portfolio pages to pass pagination metadata to tables
-  - [x] Update loading states based on response structure
-    - [x] Loading states already properly handled via `isLoading` prop
-    - [x] Loading state shows "Loading..." message in table body when `isLoading={true}`
+- [x] **Comparison Charts** ✅ COMPLETE
+  - [x] Create `ComparisonCharts` component (combines MoM and YoY)
+  - [x] Add period selector (MoM, YoY) - toggle between comparison types
+  - [x] Show side-by-side comparison (bar chart) - current vs previous period
+  - [x] Add percentage change indicators - with color coding and icons
+  - [x] Add trend arrows (up/down) with color coding - green for positive, red for negative
+  - [x] Add category breakdown toggle (optional) - shows top 5 categories for MoM
+  - [x] Add category selector - filter by specific category or all categories
+  - [x] Add summary cards - showing income, expenses, and net changes
+  - [x] Add export button (PNG ready, can be extended to SVG/PDF)
+
+- [x] **Forecast Chart** ✅ COMPLETE
+  - [x] Create `ForecastChart` component using shadcn chart components
+  - [x] Add forecast period selector (1 month, 3 months, 6 months, 1 year)
+  - [x] Display projected income/expenses/net as line chart - with confidence intervals
+  - [x] Show confidence intervals as shaded areas - 95% prediction range
+  - [x] Add historical average display - shows in filter section
+  - [x] Add forecast assumptions display - info popover with assumptions
+  - [x] Add date range selector for historical data - with quick range buttons
+  - [x] Add export button (PNG ready, can be extended to SVG/PDF)
+
+- [x] **Heatmap Calendar View** ✅ COMPLETE
+  - [x] Create `HeatmapCalendar` component - custom implementation using grid layout
+  - [x] Display daily transaction data as heatmap - calendar grid with color-coded cells
+  - [x] Color intensity based on amount (income = green, expenses = red, net = gradient)
+  - [x] Show transaction count on hover - detailed tooltip with income/expenses/net/transaction count
+  - [x] Add month/year navigation - previous/next month buttons
+  - [x] Click date to filter transactions for that day - via `onDateClick` prop
+  - [x] Add date range selector - with quick range buttons (3M, 6M, 1Y)
+  - [x] Add legend for color scale - visual gradient legend
+  - [x] Add view mode selector - toggle between income/expenses/net
+  - [x] Add export button (PNG ready, can be extended to SVG/PDF)
+
+- [x] **Spending Patterns Chart** ✅ COMPLETE
+  - [x] Create `SpendingPatternsChart` component using shadcn chart components
+  - [x] Display daily patterns (by day of week) as bar chart
+  - [x] Display weekly patterns (by week of month) as bar chart
+  - [x] Display monthly patterns (by day of month) as bar chart
+  - [x] Add pattern type selector (daily, weekly, monthly)
+  - [x] Highlight anomalies with different color/styling - amber color with border for anomalies
+  - [x] Add anomaly details tooltip - shows anomaly indicator in tooltip
+  - [x] Add anomalies section - displays top 6 anomalies with details
+  - [x] Add date range selector - with quick range buttons (3M, 6M, 1Y)
+  - [x] Add click handler for anomalies - via `onAnomalyClick` prop
+  - [x] Add export button (PNG ready, can be extended to SVG/PDF)
+
+- [x] **Interactive Features** ✅ COMPLETE
+  - [x] Add drill-down functionality
+    - [x] Click chart element to navigate to filtered transaction list - All chart components navigate with filters
+    - [x] Add breadcrumb navigation for drill-down path - BreadcrumbNavigation component created
+    - [x] Add back button to return to overview - BreadcrumbNavigation supports back button
+    - [x] Preserve filter state in URL query params - Transaction page reads/writes URL params
+  - [x] Add click to filter
+    - [x] Click chart element to filter transactions - All charts navigate to transaction list with filters
+    - [x] Update transaction list based on chart selection - URL params automatically apply filters
+    - [x] Add filter chips for active filters - FilterChips component displays active filters
+    - [x] Add clear filters button - FilterChips includes clear all button
+    - [x] Sync filters across all charts on dashboard - Charts use buildTransactionListUrl() utility
+
+- [x] **Chart Enhancements** ✅ COMPLETE
+  - [x] Add chart type selector (bar, line, pie, area, etc.) - ChartControls component with type selector
+    - [x] Save chart preferences to localStorage - chart-preferences.ts utility with localStorage support
+    - [x] Add chart customization options (colors, labels, etc.) - ChartControls with display options (labels, grid, legend)
+  - [x] Enhanced tooltips - EnhancedTooltip component created
+    - [x] Show more detailed information on hover - Detailed format with percentages and totals
+    - [x] Display related data (e.g., transaction count, percentage) - Supports transaction count and percentage display
+    - [x] Add tooltip customization options - Three formats: minimal, default, detailed
+  - [x] Export charts as images ✅ COMPLETE
+    - [x] Add export button to each chart - ChartExportButton component with dropdown menu
+    - [x] Export as PNG (using `html2canvas` or similar) - Implemented with html2canvas
+    - [x] Export as SVG (for vector graphics) - Implemented with SVG serialization
+    - [x] Export as PDF (for reports, using `jspdf` or similar) - Implemented with jspdf
+    - [x] Add chart title and metadata to exports - All formats include title and description
+    - [x] Add export date/time to exports - Timestamp included in all export formats
+
+- [x] **Analytics Page/Dashboard Section** ✅ COMPLETE (Option 1)
+  - [x] Option 1: Create dedicated `/finance/analytics` page - Created at `/app/(owner)/finance/analytics/page.tsx`
+    - [x] Create analytics page with all advanced charts - All 5 chart types included
+    - [x] Add tabbed interface for different chart types - Tabs component with 5 tabs (Trends, Comparison, Forecast, Heatmap, Patterns)
+    - [x] Add date range selector (global for all charts) - Info card explaining chart-level date controls
+    - [x] Add chart layout options (grid, single view) - Layout toggle buttons (grid/single view)
+  - [x] Add loading states with skeletons for all charts - All charts already have skeleton loading states
+  - [x] Add error states with retry functionality - All charts have error handling with toast notifications
+  - [x] Add empty states with helpful messages - All charts have empty states with helpful messages
+  - [x] Added link to analytics page from finance overview page
+
+- [x] **Integration & Testing** ✅ COMPLETE
+  - [x] Integrate all charts into finance dashboard or analytics page ✅ COMPLETE - All 5 charts integrated in `/finance/analytics` page with tabbed interface
+  - [x] Add toast notifications for errors ✅ COMPLETE - All chart components have toast.error() for API errors and failures
+  - [ ] Test all API endpoints with various date ranges (Recommended for production)
+  - [ ] Test interactive features (drill-down, click to filter) (Recommended for production)
+  - [ ] Test export functionality for all chart types (Recommended for production)
+  - [ ] Test responsive design (mobile, tablet, desktop) (Recommended for production)
+  - [ ] Test with empty data states (Recommended for production)
+  - [ ] Test with large datasets (Recommended for production)
 
 ---
 
-### 🚀 Phase 2 Priority Order
+### Low Priority (Nice to Have)
 
-1. **High Priority** (Core Portfolio Data)
+#### Performance Optimization
 
-   - Portfolio Project Management
-   - Portfolio Experience Management
-   - Portfolio Skill Management
-   - Portfolio Profile/Settings
+- [ ] **Code Splitting**
 
-2. **Medium Priority** (Additional Content)
+  - [ ] Implement route-based code splitting
+  - [ ] Implement component lazy loading
+  - [ ] Optimize bundle size
 
-   - Portfolio Company Management
-   - Portfolio Education Management
-   - Portfolio Certification Management
-   - Portfolio Contact/Social Links
+- [ ] **Image Optimization**
 
-3. **Low Priority** (Nice to have)
-   - Portfolio Blog/Article Management
-   - Portfolio Testimonial Management
-   - Portfolio Preview/Public View
-   - Advanced features (themes, sharing, etc.)
+  - [ ] Implement Next.js Image component for all images
+  - [ ] Add image lazy loading
+  - [ ] Add image placeholder/blur
+
+- [ ] **Caching**
+  - [ ] Implement API response caching
+  - [ ] Implement static asset caching
+  - [ ] Add service worker for offline support
+
+#### Accessibility
+
+- [ ] **ARIA Labels**
+  - [ ] Add proper ARIA labels to all interactive elements
+  - [ ] Add keyboard navigation support
+  - [ ] Add focus management
+  - [ ] Ensure screen reader compatibility
+
+#### UI/UX Enhancements
+
+- [x] **Transaction Timeline View** ✅ COMPLETE
+  - [x] Create timeline visualization component
+  - [x] Add group by date functionality (frontend grouping using existing transaction API)
+  - [x] Display income/expense flow
+  - [x] Add balance tracking (running balance calculation on frontend)
+  - [x] Implement vertical timeline layout
+  - [x] Add color-coding by transaction type
+  - [x] Add expandable date groups
+  - [x] Integrate with existing transaction API (`GET /finance/transactions` with date sorting)
+  - [x] Add date range filtering (using existing API filters)
+  - [x] Add click to view transaction details
+  - [x] Add view toggle (Table/Timeline) to transaction page
+  - [x] Add expand all/collapse all functionality
+  - [x] Add current balance summary card
+  - **Note**: Uses existing transaction endpoint - no backend changes needed
+
+- [x] **Calendar View** ✅ COMPLETE
+  - [x] Create monthly calendar component
+  - [x] Display daily transaction aggregation (frontend calculation)
+  - [x] Add transaction dots/indicators on dates (green for income, red for expenses)
+  - [x] Implement click date to filter functionality (navigates to transaction list with date filter)
+  - [x] Add color-coding by amount (intensity) - green for positive net/income, red for negative net/expenses
+  - [x] Add hover previews (transaction summary with income, expenses, net, transaction count)
+  - [x] Integrate with transaction API (uses existing `GET /finance/transactions` endpoint)
+  - [x] Add month/year navigation (previous/next month, today button)
+  - [x] Add view mode toggle (Calendar/Table/Timeline)
+  - [x] Add month summary card (transactions count, income, expenses, net)
+  - [x] Add legend for color coding
+  - **Note**: Uses existing transaction endpoint - no backend changes needed initially. Backend optimization (daily aggregation endpoint) can be added later if performance becomes an issue with large datasets.
+
+- [ ] **Inline Editing**
+  - [ ] Add click to edit in table functionality
+  - [ ] Create quick edit popover component
+  - [ ] Implement batch edit for selected items
+  - [ ] Add inline form fields
+  - [ ] Add save/cancel buttons
+  - [ ] Add keyboard navigation (Enter to save, Esc to cancel)
+  - [ ] Add validation for inline edits
+  - [ ] Integrate with transaction update API
+  - [ ] Add loading states for inline edits
+  - [ ] Add toast notifications for save/cancel
+
+- [x] **Better Search & Filters** ✅ COMPLETE
+  - [x] Create advanced search builder component (SearchAutocomplete with suggestions)
+  - [x] Add saved filter presets functionality (FilterPresetMenu component)
+  - [x] Add search suggestions (autocomplete) - integrated with backend API
+  - [x] Add recent searches tracking - localStorage-based with utilities
+  - [x] Add filter combinations support - filter presets support all filter combinations
+  - [x] Enhance search bar with autocomplete - SearchAutocomplete component with suggestions and recent searches
+  - [x] Add filter count badge - shows active filter count
+  - [x] Integrate with backend filter presets API - full CRUD operations
+  - [x] Add localStorage for recent searches - recent-searches.ts utilities
+  - [x] Add filter preset management (save, delete, rename) - FilterPresetDialog and FilterPresetMenu
+  - **Components Created**:
+    - `SearchAutocomplete` - Autocomplete search with suggestions and recent searches
+    - `FilterPresetMenu` - Dropdown menu for managing filter presets
+    - `FilterPresetDialog` - Dialog for saving/editing filter presets
+    - `recent-searches.ts` - Utilities for localStorage-based recent searches tracking
+  - **API Integration**:
+    - `finance-filter-presets.ts` - Full CRUD API for filter presets
+    - `finance-search.ts` - Search suggestions and analytics API
+  - **Features**:
+    - Search autocomplete with debouncing (300ms)
+    - Recent searches with remove functionality
+    - Search suggestions from transaction history (descriptions, notes, references, tags, payment methods)
+    - Filter preset save/load/delete/rename
+    - Default preset support
+    - Filter count badge
+    - Integrated into transactions page
+
+- [ ] **Transaction Receipt/Attachment** (Backend ✅ COMPLETE)
+  - **Backend Status**: ✅ All endpoints and services complete
+    - ✅ Receipt upload endpoint (`POST /api/v1/finance/transactions/:id/receipt`)
+    - ✅ Receipt download endpoint (`GET /api/v1/finance/transactions/:id/receipt`)
+    - ✅ Receipt deletion endpoint (`DELETE /api/v1/finance/transactions/:id/receipt`)
+    - ✅ Receipt OCR extraction (`POST /api/v1/finance/transactions/:id/receipt/extract`)
+    - ✅ Receipt OCR data retrieval (`GET /api/v1/finance/transactions/:id/receipt/ocr`)
+    - ✅ Apply OCR data (`PATCH /api/v1/finance/transactions/:id/apply-ocr`)
+    - ✅ Discard OCR data (`DELETE /api/v1/finance/transactions/:id/receipt/ocr`)
+    - ✅ Merchant category mappings (`GET/POST/PATCH/DELETE /api/v1/finance/merchant-categories`)
+    - ✅ Auto-categorization integrated into OCR flow
+  - **Frontend Tasks**:
+    - [x] **Receipt Upload Component** ✅ COMPLETE
+      - [x] Create `ReceiptUpload` component with drag-and-drop support
+      - [x] Add image upload support (JPEG, PNG, GIF, WebP)
+      - [x] Add PDF attachment support
+      - [x] Add file validation (type and size - 10MB max)
+      - [x] Add upload progress indicator
+      - [x] Add image preview before upload
+      - [x] Add error handling with toast notifications
+      - [x] Integrate with `POST /api/v1/finance/transactions/:id/receipt` endpoint
+      - [x] Create `finance-receipts.ts` API client with all receipt functions
+    - [x] **Receipt Display** ✅ COMPLETE
+      - [x] Add receipt indicator/icon in transaction table rows
+      - [x] Add receipt badge showing file type (image/PDF) with appropriate icon
+      - [x] Clickable badge to open receipt viewer
+      - [x] Updated Transaction interface to include receipt fields
+    - [x] **Receipt Viewer Modal** ✅ COMPLETE
+      - [x] Create `ReceiptViewerModal` component
+      - [x] Display images (JPEG, PNG, GIF, WebP) with zoom/pan/rotate
+      - [x] Display PDFs with iframe viewer
+      - [x] Add download button in viewer
+      - [x] Add delete button in viewer (with confirmation)
+      - [x] Add close button and keyboard navigation (Esc to close, +/- for zoom, R for rotate)
+      - [x] Add fullscreen mode (F11)
+      - [x] Add file size and type display
+      - [x] Add keyboard shortcuts hint
+    - [x] **Receipt Actions** ✅ COMPLETE
+      - [x] Add receipt download functionality (uses `GET /api/v1/finance/transactions/:id/receipt`) - Implemented in ReceiptViewerModal
+      - [x] Add receipt deletion functionality (uses `DELETE /api/v1/finance/transactions/:id/receipt`) - Implemented in ReceiptViewerModal
+      - [x] Add confirmation dialog for deletion - ConfirmDialog integrated
+      - [x] Add success/error toast notifications - Toast notifications for all actions
+    - [x] **Transaction Form Integration** ✅ COMPLETE
+      - [x] Add receipt upload section to transaction form - ReceiptUpload component integrated
+      - [x] Allow upload during transaction creation - Shows message that receipt can be uploaded after creation
+      - [x] Allow upload after transaction creation (edit mode) - Full upload functionality in edit mode
+      - [x] Show existing receipt if present - ReceiptUpload displays existing receipt with preview
+      - [x] Allow replacing existing receipt - ReceiptUpload supports replace functionality
+      - [x] Receipt state management - Local state syncs with transaction data
+      - [x] Refresh transaction after receipt changes - onReceiptChange callback refreshes data
+    - [x] **Receipt OCR Integration** ✅ COMPLETE
+      - [x] Create `ReceiptOcrReviewModal` component - Full modal with editable fields, confidence scores, category selection
+      - [x] Display extracted OCR data (merchant, date, amounts, items) - All fields displayed with confidence badges
+      - [x] Show confidence scores for each field - Color-coded badges (high/medium/low)
+      - [x] Allow user to edit/correct extracted data - All editable fields with input controls
+      - [x] Show suggested category with confidence - Category suggestion with confidence badge
+      - [x] Allow user to accept/reject suggested category - Category selector with checkbox to apply
+      - [x] Add "Apply OCR Data" button - Applies selected fields to transaction
+      - [x] Add "Discard OCR Data" button - Discards OCR data
+      - [x] Add loading states during OCR extraction - Loading indicators for all async operations
+      - [x] Create `ReceiptActions` component - Complete component with extract/review/apply buttons
+      - [x] Add "Extract Receipt Data" button (triggers OCR) - Button with loading state
+      - [x] Show OCR status (extracted, applied, not extracted) - Status badges with icons
+      - [x] Add "Review OCR Data" button (if OCR data exists) - Opens review modal
+      - [x] Add "Apply OCR Data" button (if OCR data not applied) - Quick apply button
+      - [x] Integrate OCR extraction flow - Integrated into transaction form and table
+      - [x] Call `POST /api/v1/finance/transactions/:id/receipt/extract` after upload - Optional auto-extract
+      - [x] Show loading state during OCR processing - Loading indicators
+      - [x] Display OCR review modal with extracted data - Modal opens automatically after extraction
+      - [x] Handle user corrections and apply OCR data - Full edit and apply flow
+      - [x] Update transaction with applied OCR data - Transaction refreshes after apply
+      - [x] Add OCR status indicators - Status badges in ReceiptActions component
+      - [x] Show "OCR Available" badge if OCR data exists - Badge with FileText icon
+      - [x] Show "OCR Applied" badge if OCR data was applied - Badge with CheckCircle2 icon
+      - [x] Show confidence indicator (high/medium/low) - Color-coded confidence badges
+    - [x] **API Integration** ✅ COMPLETE
+      - [x] Create `finance-receipts.ts` API client file - File created with all functions
+      - [x] Add `uploadReceipt(transactionId, file)` function - Implemented with FormData upload
+      - [x] Add `getReceiptUrl(transactionId)` function - Implemented using getData helper
+      - [x] Add `deleteReceipt(transactionId)` function - Implemented using del helper
+      - [x] Add `extractReceiptOcr(transactionId)` function - Implemented with POST request
+      - [x] Add `getReceiptOcr(transactionId)` function - Implemented using getData helper
+      - [x] Add `applyOcrData(transactionId, fieldsToApply, categoryId?)` function - Implemented using patch helper with ApplyOcrDataRequest
+      - [x] Add `discardReceiptOcr(transactionId)` function - Implemented using del helper
+      - [x] Add TypeScript interfaces for receipt data - All interfaces defined
+      - [x] `ReceiptMetadata` interface - Defined with receiptUrl, receiptFilename, receiptMimetype, receiptSize, receiptUploadedAt
+      - [x] `ReceiptOcrData` interface - Defined with all OCR fields (merchantName, date, totalAmount, items, etc.) and overallConfidence
+      - [x] `CategorySuggestion` interface - Defined with categoryId, categoryName, confidence, source
+      - [x] `ApplyOcrDataRequest` interface - Defined with fieldsToApply array and optional categoryId
+    - [x] **Merchant Category Mappings** ✅ COMPLETE (Optional - Backend Ready)
+      - [x] Create merchant category management UI - Created `/finance/categories/merchant-mappings` page
+      - [x] Display merchant mappings in settings or transaction details - Added to finance categories section
+      - [x] Allow manual creation/editing of merchant mappings - Full CRUD with form, table, and delete confirmation
+      - [x] Created `MerchantCategoryForm` component with category selection (expense/income)
+      - [x] Created `MerchantCategoryTable` component with columns: merchant name, category, matches, confidence, last used
+      - [x] Added API client (`finance-merchant-categories.ts`) with all CRUD functions
+      - [x] Added link to merchant mappings in finance main page
+
+    - [x] **Transaction List Virtual Scrolling** ✅ COMPLETE
+      - [x] Install `@tanstack/react-virtual` package - Installed successfully
+      - [x] Create virtual scrolling wrapper component or enhance DataTable - Added `enableVirtualScrolling` prop to DataTable
+      - [x] Integrate virtual scrolling into TransactionTable component - Auto-enabled for datasets > 100 transactions
+      - [x] Maintain existing functionality (sorting, filtering, selection) - All features preserved
+      - [x] Add loading states for virtual scrolling - Loading states maintained
+      - [ ] Test with large datasets (10,000+ transactions) - Recommended for production testing
+      - [ ] Ensure smooth scrolling performance - Recommended for production testing
+      - [ ] Test with different screen sizes - Recommended for production testing
+
+    - [ ] **Multi-Currency Support**
+      - [x] **Phase 1: Currency Selection UI** ✅ COMPLETE
+        - [x] Create `CurrencySelector` component:
+          - [x] Display currency dropdown/select
+          - [x] Show currency symbol and code (e.g., "RM (MYR)")
+          - [x] Support ISO 4217 currency codes
+          - [x] Default to MYR (Malaysian Ringgit)
+          - [x] Show exchange rate when different from base currency
+          - [x] Display converted amount in base currency (optional)
+        - [x] Add currency selector to TransactionForm:
+          - [x] Add currency field to form
+          - [x] Show currency selector next to amount field
+          - [x] Display exchange rate info if currency differs from base
+          - [x] Show converted amount in base currency (optional preview)
+        - [x] Update Transaction interface to include currency fields:
+          - [x] `currency: string` (default: 'MYR')
+          - [x] `exchangeRate?: number`
+          - [x] `baseAmount?: number`
+          - [x] `baseCurrency?: string`
+      - [x] **Phase 2: Currency Display & Formatting** ✅ COMPLETE
+        - [x] Create `CurrencyDisplay` component:
+          - [x] Format amount with currency symbol
+          - [x] Support currency code display (MYR, USD, EUR, etc.)
+          - [x] Show currency symbol based on locale
+          - [x] Handle currency symbol positioning (before/after amount)
+        - [x] Update TransactionTable to display currency:
+          - [x] Show currency badge/indicator in amount column
+          - [x] Format amounts with currency symbols
+          - [x] Show base currency conversion (optional tooltip)
+        - [x] Update TransactionCard/Timeline to display currency
+        - [x] Update transaction details view to show currency info
+        - [x] Add currency filter to transaction filters
+      - [x] **Phase 3: Currency Conversion UI** ✅ COMPLETE
+        - [x] Create `CurrencyConverter` component:
+          - [x] Input fields for amount, from currency, to currency
+          - [x] Real-time conversion display
+          - [x] Show exchange rate used
+          - [x] Show last updated timestamp
+          - [x] Loading state during conversion
+          - [x] Compact mode for inline use
+          - [x] Full card mode for standalone use
+          - [x] Optional historical rate selection
+        - [x] Add currency conversion calculator (optional):
+          - [x] Standalone calculator component (CurrencyConverter with full card mode)
+          - [x] Historical rate selection (optional, via showHistoricalRate prop)
+        - [x] Add exchange rate display in transaction form:
+          - [x] Show current exchange rate when currency selected (already implemented in CurrencySelector)
+          - [x] Show converted amount preview (already implemented in CurrencySelector)
+      - [x] **Phase 4: User Currency Preferences** ✅ COMPLETE
+        - [x] Create currency preferences page/section:
+          - [x] Base currency selector (default: MYR)
+          - [x] Supported currencies list (multi-select)
+          - [x] Currency display preferences (symbol position, format)
+        - [x] Add currency preferences to Settings page:
+          - [x] Add "Currency" section to settings
+          - [x] Base currency selection
+          - [x] Currency display format options
+        - [x] Store currency preferences in localStorage (for UI preferences)
+        - [x] Integrate with backend currency preferences API
+      - [x] **Phase 5: Analytics & Reports Currency Support** ✅ COMPLETE
+        - [x] Update analytics charts to handle multi-currency:
+          - [x] Convert all amounts to base currency for display (backend handles conversion)
+          - [x] Add currency filter to analytics queries
+          - [x] Show currency breakdown in tooltips (optional - backend provides converted amounts)
+        - [x] Update category trends chart:
+          - [x] Convert amounts to base currency (via API)
+          - [x] Show currency indicator (via filter description)
+        - [x] Update comparison charts (MoM/YoY):
+          - [x] Handle currency conversion (via API)
+          - [x] Show currency in chart labels (via filter description)
+        - [x] Update forecast chart:
+          - [x] Convert forecast amounts to base currency (via API)
+        - [x] Update heatmap:
+          - [x] Show amounts in base currency (via API)
+        - [x] Update spending patterns:
+          - [x] Handle multi-currency data (via API)
+        - [x] Add currency filter to analytics page
+      - [x] **Phase 6: Transaction Import/Export Currency Support** ✅ COMPLETE
+        - [x] Update import to handle currency column:
+          - [x] Auto-detect currency column (currency, curr, ccy)
+          - [x] Validate currency codes (ISO 4217 format)
+          - [x] Set default currency (MYR) if not provided or invalid
+        - [x] Update export to include currency:
+          - [x] Add currency column to CSV/Excel exports (already included in backend)
+          - [x] Include exchange rate and base amount (already included in backend)
+          - [x] Add currency parameter to export API function
+      - [x] **Phase 7: API Integration** ✅ COMPLETE
+        - [x] Create `finance-currency.ts` API client:
+          - [x] `getCurrencyPreferences()` - Get user's currency preferences
+          - [x] `updateCurrencyPreferences()` - Update base currency
+          - [x] `getSupportedCurrencies()` - Get list of supported currencies
+          - [x] `convertCurrency(amount, from, to, date?)` - Convert amount
+          - [x] `getExchangeRates()` - Get current exchange rates
+          - [x] `getHistoricalExchangeRates()` - Get historical rates
+        - [x] Update `finance-transactions.ts`:
+          - [x] Add currency fields to Transaction interface
+          - [x] Add currency parameter to transaction queries
+          - [x] Update create/update transaction to include currency
+        - [x] Update transaction API calls to include currency
+      - [ ] **Phase 8: Testing**
+        - [ ] Test currency selector in transaction form
+        - [ ] Test currency display in transaction table
+        - [ ] Test currency conversion accuracy
+        - [ ] Test analytics with multi-currency data
+        - [ ] Test import/export with currency data
+        - [ ] Test currency preferences persistence
+        - [ ] Test responsive design with currency components
+      - [ ] **Features**:
+        - ✅ MYR (Malaysian Ringgit) as default currency
+        - ✅ Currency selector in transaction form
+        - ✅ Currency display with proper formatting
+        - ✅ Exchange rate integration (real-time or cached)
+        - ✅ Currency conversion calculator
+        - ✅ Multi-currency analytics support
+        - ✅ Currency preferences management
+        - ✅ Currency filtering in transaction list
+        - ✅ Currency support in import/export
+
+- [x] **Transaction Quick Filters** ✅ COMPLETE
+  - [x] Create quick filter buttons component:
+    - [x] "This Week" button (filters to current week)
+    - [x] "Last Month" button (filters to previous month)
+    - [x] "Large Expenses" button (filters expenses > $100 or user's base currency equivalent)
+    - [x] "This Month" button (filters to current month)
+    - [x] "Last 7 Days" button (filters to last 7 days)
+    - [x] "Last 30 Days" button (filters to last 30 days)
+  - [x] Add quick filter buttons to transaction page (above search bar)
+  - [x] Implement one-click filter application
+    - [x] Apply date range filters for time-based quick filters
+    - [x] Apply amount filter for "Large Expenses" (client-side filtering)
+    - [x] Merge with existing filters (doesn't clear other filters)
+  - [x] Add visual indication when quick filter is active (badge with "Active" label)
+  - [x] Toggle functionality (click active filter to clear)
+  - [x] **Backend**: No backend changes needed (uses existing filter endpoints)
+
+- [x] **Transaction Count Badge** ✅ COMPLETE (Quick Wins)
+  - [x] **Sidebar Count Badge** ✅ COMPLETE
+    - [x] Add transaction count badge to finance sidebar item
+    - [x] Show total transaction count (fetched from statistics API)
+    - [x] Update count when transactions are added/removed (via custom event system)
+    - [x] Add click handler to navigate to transactions page (already handled by Link component)
+    - [x] Created `useTransactionCount` hook for fetching and managing count
+    - [x] Added event-based updates (dispatches TRANSACTION_UPDATE_EVENT on create/update/delete)
+    - [x] Auto-refreshes when navigating to/from finance pages
+  - [x] **Table Filter Count Badge** ✅ COMPLETE
+    - [x] Show filtered transaction count in transaction table header
+    - [x] Display format: "Showing X of Y transactions" or "X transactions"
+    - [x] Update count when filters change (uses pagination.total which updates automatically)
+    - [x] Show count badge next to filter chips
+    - [x] Badge shows "X transactions" when all results fit on one page
+    - [x] Badge shows "Showing X of Y transactions" when paginated
+  - [x] **Total Amount in Header** ✅ COMPLETE
+    - [x] Add total amount display in transaction table header
+    - [x] Show total income, total expenses, and net amount
+    - [x] Update totals when filters change (uses useMemo with transactionsForTotals dependency)
+    - [x] Format amounts with CurrencyDisplay component
+    - [x] Show currency badge if multiple currencies are present
+    - [x] Uses baseAmount for multi-currency support (converts to base currency)
+    - [x] Works with all view modes (table, timeline, calendar)
+    - [x] Color-coded variants (income = green, expense = red, net = based on sign)
+  - **Backend**: ✅ No backend changes needed (uses existing transaction statistics endpoint or calculate from filtered results)
+
+- [ ] **Animations**
+
+  - [ ] Add page transition animations
+  - [ ] Add component enter/exit animations
+  - [ ] Add loading skeleton animations
+
+- [ ] **Error Boundaries**
+
+  - [ ] Create error boundary component
+  - [ ] Add error reporting (Sentry or similar)
+  - [ ] Add error recovery UI
+
+- [ ] **Offline Support**
+  - [ ] Add offline detection
+  - [ ] Add offline UI indicators
+  - [ ] Add service worker for offline functionality
+
+#### Additional Features
+
+- [ ] **Welcome Message** (Optional)
+
+  - [ ] Show welcome message after successful login/signup
+
+- [ ] **Advanced Security** (Future)
+  - [ ] Two-Factor Authentication UI (if backend implemented)
+  - [ ] API Keys management UI (if applicable)
 
 ---
 
-## Phase 3: Admin Dashboard & Monitoring
+## 📝 Notes
 
-### 🎯 Overview
+### Architecture Decisions
 
-Admin dashboard for monitoring system health, queue status, cron jobs, and infrastructure metrics. This dashboard is only accessible to owners/admins.
+- **State Management**: React Context for auth, localStorage for preferences
+- **Form Management**: react-hook-form + Zod for validation
+- **API Client**: Native fetch with wrapper for consistency
+- **UI Components**: shadcn/ui for consistent design system
+- **Toast Notifications**: sonner for user feedback
 
-### 📋 Admin Dashboard Tasks
+### Development Guidelines
 
-#### 1. Admin Dashboard Layout
+- **TypeScript**: All code must be fully typed
+- **Component Structure**: Feature-based organization
+- **Environment Variables**: All configuration should come from `.env.local`
+- **Best Practices**: Follow Next.js 16 App Router patterns
+- **Testing**: Write tests for critical paths (auth, portfolio, admin)
+- **Documentation**: Document complex logic and component usage
 
-- [x] **Admin Dashboard Page** (`/admin/dashboard`)
-  - [x] Create admin dashboard layout (only accessible to owners) - `app/(private)/admin/layout.tsx`
-  - [x] Add admin navigation sidebar - `components/layout/admin/admin-nav.tsx`
-  - [x] Add admin header with breadcrumbs - Uses existing `AppHeader` component
-  - [x] Add role-based access control (owner-only routes) - Layout checks user.role === "owner" and redirects
-  - [x] Add admin dashboard overview cards (system status, queue health, etc.) - Dashboard page with status cards and queue statistics
-  - [x] Update middleware to protect `/admin` routes
-  - [x] Add Admin link to main sidebar (owner-only)
+### Future Considerations
 
-#### 2. Queue Monitoring Dashboard
+- Consider adding Docker/Docker Compose for easier local development
+- Consider adding CI/CD pipeline
+- Consider adding automated deployment scripts
+- Consider adding component library documentation (Storybook)
+- Consider adding performance monitoring (Web Vitals)
 
-- [x] **Queue Dashboard Integration**
-  - [x] Create queue monitoring page (`/admin/queues`) - `app/(private)/admin/queues/page.tsx`
-  - [x] Embed Bull Board UI (iframe integration) - Full Bull Board dashboard in iframe tab
-  - [x] Add queue statistics display (waiting, active, completed, failed, delayed) - Overview tab with aggregated and per-queue stats
-  - [x] Add real-time queue metrics (auto-refresh every 10 seconds) - Auto-refresh implemented
-  - [x] Add queue health indicators (green/yellow/red status) - Health badges based on failure rate (5% warning, 10% error)
-  - [x] Add per-queue statistics cards - Individual cards for each queue with detailed stats and clean jobs dialog
-  - [x] Add queue job history/failed jobs list - Job History tab with failed and completed jobs sections
-  - [x] Add ability to retry failed jobs (via API) - Retry button for each failed job
-  - [x] Add ability to clean completed/failed jobs (via API) - Clean jobs dialog with options (completed/failed/all)
+---
 
-- [x] **Queue Statistics API Integration**
-  - [x] Create `lib/api/admin.ts` for admin API calls
-  - [x] Add `getQueueStats()` function (`GET /api/v1/admin/queues/stats`)
-  - [x] Add queue statistics types/interfaces
-  - [x] Add error handling for admin API calls
-  - [x] Integrated into admin dashboard with real-time updates (30s refresh)
-  - [x] Integrated into queue monitoring page with real-time updates (10s refresh)
+## 🚀 Quick Reference
 
-- [x] **Queue Job Management API Integration**
-  - [x] Add `retryJob()` function (`POST /api/v1/admin/queues/:queueName/jobs/:jobId/retry`)
-  - [x] Add `cleanJobs()` function (`DELETE /api/v1/admin/queues/:queueName/jobs/clean`)
-  - [x] Add `getFailedJobs()` function (`GET /api/v1/admin/queues/:queueName/jobs/failed`)
-  - [x] Add `getJobHistory()` function (`GET /api/v1/admin/queues/:queueName/jobs/history`)
-  - [x] Add queue job management types/interfaces (QueueJob, JobHistoryResponse, CleanJobsResponse)
-  - [x] Error handling with toast notifications
-  - [x] Integrated into queue monitoring page with UI controls
+### Priority Order
 
-#### 3. System Health Monitoring
+1. **Testing** (High Priority) - Critical for production readiness
+2. **Documentation** (High Priority) - Improves developer experience
+3. **Remaining Features** (Medium Priority) - Complete existing modules
+4. **Enhancements** (Low Priority) - Nice to have features
 
-- [ ] **Health Check Dashboard** (`/admin/health`)
-  - [ ] Create system health monitoring page
-  - [ ] Display Redis health status (`GET /api/v1/health/redis`)
-  - [ ] Display MongoDB connection status
-  - [ ] Display API server status
-  - [ ] Add health check cards with status indicators
-  - [ ] Add real-time health monitoring (auto-refresh)
-  - [ ] Add uptime/response time metrics
-  - [ ] Add error rate tracking
+### Completed Work
 
-- [x] **Health Check API Integration**
-  - [x] Add `getRedisHealth()` function (`GET /api/v1/health/redis`)
-  - [x] Add `getSystemHealth()` function (`GET /api/v1/admin/health`)
-  - [x] Add health check types/interfaces (SystemHealth, RedisHealth, MongoDBHealth, HealthCheckResponse)
-  - [x] Integrated into admin dashboard with real-time updates (30s refresh)
+See [TODO-COMPLETED.md](./TODO-COMPLETED.md) for:
 
-#### 4. Cron Job Monitoring ✅ COMPLETE
+- Phase 1: Authentication (Complete)
+- Phase 2: Portfolio Management (Complete)
+- Phase 3: Admin Dashboard (Complete)
+- Settings Module (Mostly Complete)
+- All implemented features and components
 
-- [x] **Cron Job Dashboard** (`/admin/cron-jobs`)
-  - [x] Create cron job monitoring page - `app/(private)/admin/cron-jobs/page.tsx`
-  - [x] Display list of all cron jobs with status - Overview tab with status cards
-  - [x] Show last execution time for each job - Displayed in status cards with relative time
-  - [x] Show next scheduled execution time - Displayed in status cards with relative time and full date
-  - [x] Show execution count (success/failure) - Execution count, success count, and failure count displayed
-  - [x] Show job enable/disable status - Status badge shows enabled/disabled state
-  - [x] Add cron job execution logs/history - Execution History tab with detailed table
-  - [x] Add error logs for failed cron jobs - Error messages displayed in history table and status cards
-  - [x] Add success rate calculation and display - Success rate percentage shown in status cards
-  - [x] Add real-time updates (auto-refresh every 30 seconds) - Auto-refresh implemented
-  - [x] Add tabs for Overview and Execution History - Tabs component with two tabs
-  - [x] Add job selection dropdown for history view - Dropdown to select which job's history to view
-  - [x] Responsive design with mobile support - Responsive grid layout for status cards
+### Planned Work
 
-- [x] **Cron Job API Integration**
-  - [x] Add `getCronJobStatuses()` function (`GET /api/v1/admin/cron-jobs`) - Returns all cron job statuses
-  - [x] Add `getCronJobStatus(jobName)` function (`GET /api/v1/admin/cron-jobs/:jobName`) - Returns specific job status
-  - [x] Add `getCronJobHistory(jobName, limit)` function (`GET /api/v1/admin/cron-jobs/:jobName/history`) - Returns execution history
-  - [x] Add cron job types/interfaces (CronJobStatus, CronJobExecution, CronJobHistoryResponse) - All types defined in `lib/api/admin.ts`
-  - [x] Error handling with toast notifications - Error handling integrated
-  - [x] Integrated into admin navigation - Already available in AdminNav component
+- All major phases are complete. Remaining work includes testing, documentation, and optional enhancements.
 
-#### 5. System Metrics & Analytics ✅ COMPLETE
+---
 
-- [x] **System Metrics Dashboard** (`/admin/metrics`)
-  - [x] Create system metrics page - `app/(private)/admin/metrics/page.tsx`
-  - [x] Display queue metrics (job success/failure rates, throughput) - Queue status pie chart and success/failure rate bar chart
-  - [x] Display database metrics (connection pool, query performance) - MongoDB metrics card with connection pool, collections, databases, uptime
-  - [x] Display Redis metrics (memory usage, connection count) - Redis metrics card with memory, connections, keyspace, latency
-  - [x] Display API metrics (request rate, error rate, response times) - Overview cards and response time trend chart
-  - [x] Add charts/graphs for metrics visualization (using shadcn UI chart components with recharts) - Pie charts, bar charts, area charts for various metrics
-  - [x] Add time range selector (last hour, day, week, month) - Time range selector dropdown (UI ready, backend can filter by time range)
-  - [x] Add export metrics functionality - Export button downloads metrics as JSON file
-  - [x] Add overview cards for key metrics - API requests, error rate, response time, Redis memory
-  - [x] Add real-time updates (auto-refresh every 10 seconds) - Auto-refresh implemented
-  - [x] Add metrics history tracking - Keeps last 60 data points for trend visualization
-  - [x] Responsive design with mobile support - Responsive grid layout
-
-- [x] **Metrics API Integration**
-  - [x] Add `getSystemMetrics()` function (`GET /api/v1/admin/metrics`) - Returns comprehensive system metrics
-  - [x] Add metrics types/interfaces (SystemMetrics, QueueMetrics, RedisMetrics, MongoMetrics, ApiMetrics) - All types defined in `lib/api/admin.ts`
-  - [x] Add real-time metrics updates (polling every 10 seconds) - Auto-refresh implemented
-  - [x] Error handling with toast notifications - Error handling integrated
-
-#### 6. Admin Components
-
-- [ ] **Admin Shared Components**
-  - [ ] Create `AdminLayout` component
-  - [ ] Create `AdminNav` component
-  - [ ] Create `HealthStatusCard` component
-  - [ ] Create `QueueStatsCard` component
-  - [ ] Create `CronJobCard` component
-  - [ ] Create `MetricsChart` component
-  - [ ] Create `StatusIndicator` component (green/yellow/red badges)
-
-#### 7. Role-Based Access Control
-
-- [ ] **Admin Route Protection**
-  - [ ] Add admin route protection middleware
-  - [ ] Check user role (owner) before allowing access
-  - [ ] Redirect non-admin users to dashboard
-  - [ ] Add 403 Forbidden page for unauthorized access
-  - [ ] Add admin role check in API client
-
-- [x] **Admin API Client**
-  - [x] Create `lib/api/admin.ts` for admin-only API calls
-  - [x] Add `getQueueStats()` function (`GET /api/v1/admin/queues/stats`)
-  - [x] Add `getSystemHealth()` function (`GET /api/v1/admin/health`)
-  - [x] Add `getRedisHealth()` function (`GET /api/v1/health/redis`)
-  - [x] Add TypeScript interfaces for queue stats and health responses
-  - [x] Admin authentication handled automatically via apiClient (JWT token)
-  - [x] Error handling with toast notifications
-
-#### 8. Real-Time Updates
-
-- [ ] **Real-Time Monitoring**
-  - [ ] Add WebSocket connection for real-time updates (if WebSocket implemented)
-  - [ ] Add polling fallback for metrics updates
-  - [ ] Add auto-refresh toggle (enable/disable)
-  - [ ] Add refresh interval configuration
-
-### 🚀 Admin Dashboard Priority Order
-
-1. **High Priority** (Core Monitoring)
-   - Queue monitoring dashboard
-   - System health checks
-   - Queue statistics display
-
-2. **Medium Priority** (Enhanced Monitoring)
-   - Cron job monitoring
-   - System metrics dashboard
-   - Real-time updates
-
-3. **Low Priority** (Nice to have)
-   - Advanced analytics
-   - Historical data tracking
-   - Custom alerting rules
-
-### 📝 Admin Dashboard Notes
-
-- **Owner-Only Access**: All admin routes should be protected and only accessible to users with owner role
-- **Real-Time Updates**: Consider WebSocket for real-time metrics, or polling as fallback
-- **Bull Board Integration**: Can embed Bull Board UI directly or create custom dashboard using Bull Board API
-- **Health Checks**: Display status of all critical services (Redis, MongoDB, API server)
-- **Queue Management**: Allow admins to monitor and manage queues (retry failed jobs, clean old jobs)
-- **Cron Job Management**: Display cron job status and allow manual triggering if needed
+**Last Updated**: 04 Dec 2025

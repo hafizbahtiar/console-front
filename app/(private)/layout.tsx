@@ -12,7 +12,7 @@ export default function PrivateLayout({
       <AppSidebar />
       <main className="flex flex-1 flex-col overflow-hidden">
         <AppHeader />
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6">
           {children}
         </div>
       </main>

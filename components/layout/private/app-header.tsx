@@ -101,23 +101,23 @@ export function AppHeader() {
     const breadcrumbs = generateBreadcrumbs(pathname)
 
     return (
-        <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-4 border-b bg-background px-4">
+        <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 md:gap-4 border-b bg-background px-3 md:px-4">
             <SidebarTrigger />
-            <div className="flex flex-1 items-center gap-4">
+            <div className="flex flex-1 items-center gap-2 md:gap-4 min-w-0">
                 <Breadcrumb>
-                    <BreadcrumbList>
+                    <BreadcrumbList className="flex-wrap">
                         {breadcrumbs.map((crumb, index) => (
                             <React.Fragment key={crumb.href}>
-                                <BreadcrumbItem>
+                                <BreadcrumbItem className="text-xs md:text-sm">
                                     {crumb.isActive ? (
-                                        <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                                        <BreadcrumbPage className="truncate">{crumb.label}</BreadcrumbPage>
                                     ) : (
                                         <BreadcrumbLink asChild>
-                                            <Link href={crumb.href}>{crumb.label}</Link>
+                                            <Link href={crumb.href} className="truncate">{crumb.label}</Link>
                                         </BreadcrumbLink>
                                     )}
                                 </BreadcrumbItem>
-                                {index < breadcrumbs.length - 1 && <BreadcrumbSeparator />}
+                                {index < breadcrumbs.length - 1 && <BreadcrumbSeparator className="hidden sm:block" />}
                             </React.Fragment>
                         ))}
                     </BreadcrumbList>

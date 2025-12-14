@@ -7,6 +7,7 @@ import { DataTable } from "@/components/ui/data-table"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
+import { Trash2 } from "lucide-react"
 
 interface SkillTableProps {
   skills: Skill[]
@@ -19,6 +20,9 @@ interface SkillTableProps {
   isLoading?: boolean
   onEdit?: (skill: Skill) => void
   onDelete?: (skill: Skill) => void
+  enableRowSelection?: boolean
+  onSelectionChange?: (selectedSkills: Skill[]) => void
+  onBulkDelete?: (selectedSkills: Skill[]) => void
 }
 
 export function SkillTable({
@@ -32,6 +36,9 @@ export function SkillTable({
   isLoading,
   onEdit,
   onDelete,
+  enableRowSelection = false,
+  onSelectionChange,
+  onBulkDelete,
 }: SkillTableProps) {
   const columns = React.useMemo<ColumnDef<Skill, any>[]>(
     () => [
@@ -144,6 +151,23 @@ export function SkillTable({
       isLoading={isLoading}
       emptyTitle="No skills yet"
       emptyDescription="Start by adding your technical skills and proficiency levels."
+      enableRowSelection={enableRowSelection}
+      getRowId={(row) => row.id}
+      onSelectionChange={onSelectionChange}
+      renderBulkActions={
+        onBulkDelete
+          ? (selected) => (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => onBulkDelete(selected)}
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete Selected ({selected.length})
+            </Button>
+          )
+          : undefined
+      }
     />
   )
 }

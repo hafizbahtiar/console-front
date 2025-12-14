@@ -8,7 +8,7 @@ import { PaginationMeta } from "@/lib/types/api-response"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
-import { FileText, CalendarDays, Eye, EyeOff } from "lucide-react"
+import { FileText, CalendarDays, Eye, EyeOff, Trash2 } from "lucide-react"
 
 interface BlogTableProps {
   blogs: Blog[]
@@ -22,6 +22,9 @@ interface BlogTableProps {
   isLoading?: boolean
   onEdit?: (blog: Blog) => void
   onDelete?: (blog: Blog) => void
+  enableRowSelection?: boolean
+  onSelectionChange?: (selectedBlogs: Blog[]) => void
+  onBulkDelete?: (selectedBlogs: Blog[]) => void
 }
 
 export function BlogTable({
@@ -36,6 +39,9 @@ export function BlogTable({
   isLoading,
   onEdit,
   onDelete,
+  enableRowSelection = false,
+  onSelectionChange,
+  onBulkDelete,
 }: BlogTableProps) {
   const columns = React.useMemo<ColumnDef<Blog, any>[]>(
     () => [
@@ -179,6 +185,23 @@ export function BlogTable({
       isLoading={isLoading}
       emptyTitle="No blog posts yet"
       emptyDescription="Start by creating your first blog post or article."
+      enableRowSelection={enableRowSelection}
+      getRowId={(row) => row.id}
+      onSelectionChange={onSelectionChange}
+      renderBulkActions={
+        onBulkDelete
+          ? (selected) => (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => onBulkDelete(selected)}
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete Selected ({selected.length})
+            </Button>
+          )
+          : undefined
+      }
     />
   )
 }

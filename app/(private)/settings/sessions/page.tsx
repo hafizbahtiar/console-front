@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { toast } from "sonner"
 import { getActiveSessions, revokeSession, revokeAllSessions, type Session } from "@/lib/api/settings"
+import { ApiClientError } from "@/lib/api-client"
 import { Monitor, Smartphone, Tablet, Globe, MapPin, Clock, Trash2, LogOut, Loader2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 
@@ -22,6 +23,7 @@ export default function SessionsSettingsPage() {
     const [sessions, setSessions] = useState<Session[]>([])
     const [isLoadingSessions, setIsLoadingSessions] = useState(true)
     const [revokingSessionId, setRevokingSessionId] = useState<string | null>(null)
+    const [isRevokingAll, setIsRevokingAll] = useState(false)
 
     // Fetch sessions on mount
     useEffect(() => {
@@ -33,8 +35,12 @@ export default function SessionsSettingsPage() {
         try {
             const data = await getActiveSessions()
             setSessions(data)
-        } catch (error) {
-            toast.error("Failed to load sessions")
+        } catch (error: any) {
+            const message =
+                error instanceof ApiClientError
+                    ? error.message
+                    : "Failed to load sessions. Please try again."
+            toast.error(message)
         } finally {
             setIsLoadingSessions(false)
         }
@@ -46,20 +52,31 @@ export default function SessionsSettingsPage() {
             await revokeSession(sessionId)
             toast.success("Session revoked successfully")
             await loadSessions()
-        } catch (error) {
-            toast.error("Failed to revoke session")
+        } catch (error: any) {
+            const message =
+                error instanceof ApiClientError
+                    ? error.message
+                    : "Failed to revoke session. Please try again."
+            toast.error(message)
         } finally {
             setRevokingSessionId(null)
         }
     }
 
     const handleRevokeAllSessions = async () => {
+        setIsRevokingAll(true)
         try {
             await revokeAllSessions()
             toast.success("All sessions revoked successfully")
             await loadSessions()
-        } catch (error) {
-            toast.error("Failed to revoke all sessions")
+        } catch (error: any) {
+            const message =
+                error instanceof ApiClientError
+                    ? error.message
+                    : "Failed to revoke all sessions. Please try again."
+            toast.error(message)
+        } finally {
+            setIsRevokingAll(false)
         }
     }
 
@@ -119,7 +136,7 @@ export default function SessionsSettingsPage() {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
                     <h2 className="text-2xl font-semibold">Active Sessions</h2>
                     <p className="text-muted-foreground mt-1">
@@ -129,9 +146,18 @@ export default function SessionsSettingsPage() {
                 {activeSessions.length > 1 && (
                     <AlertDialog>
                         <AlertDialogTrigger asChild>
-                            <Button variant="outline" size="sm">
-                                <LogOut className="h-4 w-4 mr-2" />
-                                Sign Out All
+                            <Button variant="outline" size="sm" disabled={isRevokingAll}>
+                                {isRevokingAll ? (
+                                    <>
+                                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                        Signing Out...
+                                    </>
+                                ) : (
+                                    <>
+                                        <LogOut className="h-4 w-4 mr-2" />
+                                        Sign Out All
+                                    </>
+                                )}
                             </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
@@ -142,9 +168,16 @@ export default function SessionsSettingsPage() {
                                 </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={handleRevokeAllSessions}>
-                                    Sign Out All
+                                <AlertDialogCancel disabled={isRevokingAll}>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleRevokeAllSessions} disabled={isRevokingAll}>
+                                    {isRevokingAll ? (
+                                        <>
+                                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                            Signing Out...
+                                        </>
+                                    ) : (
+                                        "Sign Out All"
+                                    )}
                                 </AlertDialogAction>
                             </AlertDialogFooter>
                         </AlertDialogContent>

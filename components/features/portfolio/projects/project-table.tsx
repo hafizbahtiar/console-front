@@ -8,7 +8,7 @@ import { PaginationMeta } from "@/lib/types/api-response"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
-import { CalendarDays, ExternalLink, Github, Star } from "lucide-react"
+import { CalendarDays, ExternalLink, Github, Star, Trash2 } from "lucide-react"
 
 interface ProjectTableProps {
   projects: Project[]
@@ -22,6 +22,9 @@ interface ProjectTableProps {
   isLoading?: boolean
   onEdit?: (project: Project) => void
   onDelete?: (project: Project) => void
+  enableRowSelection?: boolean
+  onSelectionChange?: (selectedProjects: Project[]) => void
+  onBulkDelete?: (selectedProjects: Project[]) => void
 }
 
 export function ProjectTable({
@@ -36,6 +39,9 @@ export function ProjectTable({
   isLoading,
   onEdit,
   onDelete,
+  enableRowSelection = false,
+  onSelectionChange,
+  onBulkDelete,
 }: ProjectTableProps) {
   const columns = React.useMemo<ColumnDef<Project, any>[]>(
     () => [
@@ -196,6 +202,23 @@ export function ProjectTable({
       isLoading={isLoading}
       emptyTitle="No projects yet"
       emptyDescription="Start by creating your first project to showcase on your portfolio."
+      enableRowSelection={enableRowSelection}
+      getRowId={(row) => row.id}
+      onSelectionChange={onSelectionChange}
+      renderBulkActions={
+        onBulkDelete
+          ? (selected) => (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => onBulkDelete(selected)}
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete Selected ({selected.length})
+              </Button>
+            )
+          : undefined
+      }
     />
   )
 }

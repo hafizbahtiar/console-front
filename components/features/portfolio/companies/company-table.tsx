@@ -6,7 +6,7 @@ import type { Company } from "@/lib/api/portfolio"
 import { DataTable } from "@/components/ui/data-table"
 import { PaginationMeta } from "@/lib/types/api-response"
 import { Button } from "@/components/ui/button"
-import { Building2, Globe2 } from "lucide-react"
+import { Building2, Globe2, Trash2 } from "lucide-react"
 
 interface CompanyTableProps {
   companies: Company[]
@@ -20,6 +20,9 @@ interface CompanyTableProps {
   isLoading?: boolean
   onEdit?: (company: Company) => void
   onDelete?: (company: Company) => void
+  enableRowSelection?: boolean
+  onSelectionChange?: (selectedCompanies: Company[]) => void
+  onBulkDelete?: (selectedCompanies: Company[]) => void
 }
 
 export function CompanyTable({
@@ -34,6 +37,9 @@ export function CompanyTable({
   isLoading,
   onEdit,
   onDelete,
+  enableRowSelection = false,
+  onSelectionChange,
+  onBulkDelete,
 }: CompanyTableProps) {
   const columns = React.useMemo<ColumnDef<Company, any>[]>(
     () => [
@@ -152,6 +158,23 @@ export function CompanyTable({
       isLoading={isLoading}
       emptyTitle="No companies yet"
       emptyDescription="Start by adding companies you have worked with or collaborated with."
+      enableRowSelection={enableRowSelection}
+      getRowId={(row) => row.id}
+      onSelectionChange={onSelectionChange}
+      renderBulkActions={
+        onBulkDelete
+          ? (selected) => (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => onBulkDelete(selected)}
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete Selected ({selected.length})
+            </Button>
+          )
+          : undefined
+      }
     />
   )
 }

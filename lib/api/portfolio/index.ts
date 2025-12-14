@@ -1,3 +1,6 @@
+// Shared types
+export * from './types'
+
 // Projects
 export * from './portfolio-projects'
 

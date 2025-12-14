@@ -33,7 +33,7 @@ export function DateTimeSection({ control }: DateTimeSectionProps) {
                         control={control}
                         render={({ field }) => (
                             <Select value={field.value} onValueChange={field.onChange}>
-                                <SelectTrigger id="date-format">
+                                <SelectTrigger id="date-format" className="w-full">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -54,7 +54,7 @@ export function DateTimeSection({ control }: DateTimeSectionProps) {
                         control={control}
                         render={({ field }) => (
                             <Select value={field.value} onValueChange={field.onChange}>
-                                <SelectTrigger id="time-format">
+                                <SelectTrigger id="time-format" className="w-full">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -74,7 +74,7 @@ export function DateTimeSection({ control }: DateTimeSectionProps) {
                     control={control}
                     render={({ field }) => (
                         <Select value={field.value} onValueChange={field.onChange}>
-                            <SelectTrigger id="timezone">
+                            <SelectTrigger id="timezone" className="w-full">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
